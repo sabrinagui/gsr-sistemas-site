@@ -3,6 +3,7 @@ import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
+import { pt } from '@payloadcms/translations/languages/pt'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
@@ -31,11 +32,25 @@ const hasR2 = Boolean(process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID)
 const hasResend = Boolean(process.env.RESEND_API_KEY)
 
 export default buildConfig({
+  // Painel em português.
+  i18n: {
+    supportedLanguages: { pt },
+    fallbackLanguage: 'pt',
+  },
+
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
     meta: {
       titleSuffix: ' · GSR Sistemas',
+      icons: [{ rel: 'icon', type: 'image/png', url: '/brand/gsr-icone.png' }],
+    },
+    // Logo da GSR no login e na navegação (src/components/admin/Branding.tsx).
+    components: {
+      graphics: {
+        Logo: '/components/admin/Branding#AdminLogo',
+        Icon: '/components/admin/Branding#AdminIcon',
+      },
     },
   },
 

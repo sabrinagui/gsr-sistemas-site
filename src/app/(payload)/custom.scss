@@ -1,1 +1,55 @@
-/* Ajustes visuais do admin. Vazio por ora. */
+/* Ajustes visuais do admin: marca da GSR e o teal da logo nos botões. */
+
+.gsr-brand {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  img {
+    display: block;
+    height: auto;
+  }
+}
+
+.gsr-brand--logo img {
+  width: 220px;
+}
+
+.gsr-brand--icon img {
+  width: 64px;
+}
+
+.gsr-brand__tagline {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--theme-elevation-500);
+}
+
+/* Uma logo por tema. */
+.gsr-brand__dark {
+  display: none !important;
+}
+
+html[data-theme='dark'] {
+  .gsr-brand__light {
+    display: none !important;
+  }
+
+  .gsr-brand__dark {
+    display: block !important;
+  }
+}
+
+/* Botão principal no teal da marca. */
+.btn--style-primary {
+  --bg-color: #0d7c8c;
+  --hover-bg: #0a6370;
+  background-color: #0d7c8c;
+
+  &:hover,
+  &:focus-visible {
+    background-color: #0a6370;
+  }
+}

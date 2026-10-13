@@ -41,7 +41,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     payload.find({ collection: 'case-studies', where: published, ...common }),
   ])
 
-  const entries: Entry[] = [entry('/'), entry('/blog/'), entry('/author/sabrina/')]
+  // Páginas fixas do código (não vêm da collection Pages).
+  const entries: Entry[] = ['/', '/servicos/', '/sobre/', '/contato/', '/orcamento/', '/blog/', '/author/sabrina/'].map((p) =>
+    entry(p),
+  )
 
   // Páginas institucionais. /obrigado é excluída por não ser conteúdo indexável.
   const excludedPages = new Set(['obrigado', 'links'])

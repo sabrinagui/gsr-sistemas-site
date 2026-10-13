@@ -109,6 +109,11 @@ const run = async () => {
     data: {
       defaultTitle: 'Criação de Sites e Sistemas Sob Medida | GSR Sistemas',
       titleTemplate: '%s | GSR Sistemas',
+      // Mesmas tags do site antigo (ver src/components/analytics/Analytics.tsx).
+      ga4MeasurementId: 'G-FVHZ0NLLXC',
+      googleTagId: 'GT-TNPWVZW4',
+      googleAdsId: 'AW-16761105005',
+      gtmContainerId: 'GTM-539GQMP8',
       defaultDescription:
         'Criação de sites, lojas virtuais e sistemas sob medida para empresas de todo o Brasil. Feitos para aparecer no Google e vender mais.',
     } as never,

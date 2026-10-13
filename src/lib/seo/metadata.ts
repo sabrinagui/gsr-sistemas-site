@@ -46,6 +46,17 @@ export type MetadataInput = {
 }
 
 const SITE_NAME = 'GSR Sistemas'
+/** Imagem de compartilhamento padrão (public/og-gsr.jpg), 1200 × 630. */
+const DEFAULT_OG_IMAGE = '/og-gsr.jpg'
+
+/** Corta descrições longas no fim de uma palavra: o Google exibe ~160 caracteres. */
+const clampDescription = (text?: string): string | undefined => {
+  if (!text) return undefined
+  const clean = text.replace(/s+/g, ' ').trim()
+  if (clean.length <= 160) return clean
+  const cut = clean.slice(0, 157)
+  return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:.]$/, '')}…`
+}
 const DEFAULT_TEMPLATE = '%s | GSR Sistemas'
 
 const applyTemplate = (title: string, template: string): string =>
@@ -82,12 +93,12 @@ export const buildMetadata = (input: MetadataInput): Metadata => {
   const resolvedTitle = seo?.metaTitle?.trim() || applyTemplate(title, titleTemplate)
 
   const resolvedDescription =
-    seo?.metaDescription?.trim() || description?.trim() || defaults?.description || undefined
+    seo?.metaDescription?.trim() || clampDescription(description ?? undefined) || defaults?.description || undefined
 
   const canonical = seo?.canonicalUrl?.trim() || generateCanonical(path)
 
   const ogImage =
-    resolveImage(seo?.ogImage) ?? resolveImage(image) ?? resolveImage(defaults?.ogImage) ?? undefined
+    resolveImage(seo?.ogImage) ?? resolveImage(image) ?? resolveImage(defaults?.ogImage) ?? absoluteUrl(DEFAULT_OG_IMAGE)
 
   const twitterImage = resolveImage(seo?.twitterImage) ?? ogImage
 

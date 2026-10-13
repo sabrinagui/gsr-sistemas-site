@@ -23,6 +23,8 @@ import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { MetaTitleField as MetaTitleField_3051a21f7763e403800d1bb0592e3f4b } from '@/components/admin/CharCountField'
 import { MetaDescriptionField as MetaDescriptionField_3051a21f7763e403800d1bb0592e3f4b } from '@/components/admin/CharCountField'
+import { AdminIcon as AdminIcon_bedc1e06f20d365eaa4738f78ed07569 } from '../../../components/admin/Branding'
+import { AdminLogo as AdminLogo_bedc1e06f20d365eaa4738f78ed07569 } from '../../../components/admin/Branding'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -52,5 +54,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/admin/CharCountField#MetaTitleField": MetaTitleField_3051a21f7763e403800d1bb0592e3f4b,
   "@/components/admin/CharCountField#MetaDescriptionField": MetaDescriptionField_3051a21f7763e403800d1bb0592e3f4b,
+  "/components/admin/Branding#AdminIcon": AdminIcon_bedc1e06f20d365eaa4738f78ed07569,
+  "/components/admin/Branding#AdminLogo": AdminLogo_bedc1e06f20d365eaa4738f78ed07569,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
