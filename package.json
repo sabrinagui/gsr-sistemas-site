@@ -20,7 +20,8 @@
     "seed:content": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env.local scripts/seed-content.ts",
     "seed:examples": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env.local scripts/seed-example-cases.ts",
     "seed:real": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env.local scripts/seed-real-content.ts",
-    "seed:services": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env.local scripts/seed-services-copy.ts"
+    "seed:services": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env.local scripts/seed-services-copy.ts",
+    "seed:projects": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env.local scripts/seed-projects.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.88.0",

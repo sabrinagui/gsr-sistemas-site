@@ -137,6 +137,14 @@ export const CaseStudies: CollectionConfig = {
               },
             },
             {
+              name: 'videoUrl',
+              type: 'text',
+              label: 'Vídeo do projeto',
+              admin: {
+                description: 'Link do Vimeo ou do YouTube (ex.: https://vimeo.com/1228946120). Aparece na página do projeto.',
+              },
+            },
+            {
               name: 'gallery',
               type: 'array',
               fields: [

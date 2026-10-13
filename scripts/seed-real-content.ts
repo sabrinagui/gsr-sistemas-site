@@ -8,8 +8,8 @@
  *  1. SiteSettings: WhatsApp único (+55 98 99167-1028) e portfólio no menu.
  *  2. Depoimentos: as três avaliações do Google exibidas no site antigo,
  *     com o texto original, sem edição.
- *  3. Projetos: os quatro trabalhos que o site antigo já mostrava em imagem,
- *     agora como cases. Os cases de exemplo ("exemplo-*") são apagados.
+ *  3. Projetos: só apaga os cases de exemplo ("exemplo-*"). Os projetos reais
+ *     ficam em scripts/seed-projects.ts.
  *  4. Artigos: os sete posts do WordPress, importados pela REST API pública,
  *     com slug e data originais. A URL continua /AAAA/MM/DD/slug/.
  *     As imagens destacadas são copiadas para public/wp-content/uploads/ no
@@ -37,45 +37,8 @@ const TESTIMONIALS = [
   { name: 'Renato Mesquita', testimonial: 'Muito bom!' },
 ]
 
-const CASES = [
-  {
-    slug: 'mcm-financiamentos',
-    title: 'MCM Financiamentos',
-    client: 'MCM Financiamentos',
-    industry: 'Financiamento veicular',
-    projectType: 'site',
-    image: 'mcm-financiamentos.webp',
-    summary:
-      'Site com simulação de financiamento veicular, que entrega ao time comercial um contato já qualificado.',
-  },
-  {
-    slug: 'trilhos-de-papel',
-    title: 'Trilhos de Papel',
-    client: 'Trilhos de Papel',
-    industry: 'Livraria infantil',
-    projectType: 'loja-virtual',
-    image: 'trilhos-de-papel.webp',
-    summary: 'Livraria infantil com loja virtual, busca de títulos e carrinho integrado.',
-  },
-  {
-    slug: 'julia-fonseca-advocacia',
-    title: 'Júlia Fonseca Advocacia',
-    client: 'Júlia Fonseca Advocacia',
-    industry: 'Advocacia',
-    projectType: 'site',
-    image: 'julia-fonseca.webp',
-    summary: 'Site institucional sóbrio para atendimento jurídico presencial e online.',
-  },
-  {
-    slug: 'mcm-marketing-digital',
-    title: 'MCM Marketing Digital',
-    client: 'MCM Marketing Digital',
-    industry: 'Marketing digital',
-    projectType: 'landing-page',
-    image: 'mcm-marketing.webp',
-    summary: 'Página de captação com formulário de consultoria gratuita, focada em conversão.',
-  },
-]
+// Os projetos do portfólio ficam em scripts/seed-projects.ts (npm run seed:projects).
+const CASES: { slug: string; title: string; image: string }[] = []
 
 /** Categoria de cada post migrado, pelo id do WordPress. */
 const POST_CATEGORY: Record<number, string> = {

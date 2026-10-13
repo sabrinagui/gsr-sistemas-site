@@ -35,7 +35,7 @@ const STEPS = [
   {
     title: 'No ar e no Google',
     text: 'Publicação, configuração do Google e suporte contínuo depois da entrega.',
-    url: 'mcmfinanciamentos.com.br',
+    url: 'refugionasdunas.com.br',
   },
 ]
 
@@ -181,24 +181,24 @@ export const ProcessScroll = () => {
                 <span className="text-[#56c7d6]">export default async function</span>{' '}
                 <span className="text-[#c7d5d6]">Home</span>() {'{'}
                 {'\n  '}
-                <span className="text-[#56c7d6]">const</span> taxas = <span className="text-[#56c7d6]">await</span>{' '}
-                getTaxas()
+                <span className="text-[#56c7d6]">const</span> casas = <span className="text-[#56c7d6]">await</span>{' '}
+                getHospedagens()
                 {'\n  '}
                 <span className="text-[#56c7d6]">return</span> (
                 {'\n    '}&lt;<span className="text-[#c7d5d6]">Hero</span>
-                {'\n      '}titulo=<span className="text-[#e5c07b]">&quot;Financiamento Veicular Rápido e Fácil&quot;</span>
-                {'\n      '}cta=<span className="text-[#e5c07b]">&quot;Fazer simulação&quot;</span>
+                {'\n      '}titulo=<span className="text-[#e5c07b]">&quot;Viva uma experiência única nos Lençóis&quot;</span>
+                {'\n      '}cta=<span className="text-[#e5c07b]">&quot;Reservar agora&quot;</span>
                 {'\n    '}/&gt;
-                {'\n    '}&lt;<span className="text-[#c7d5d6]">Simulador</span> taxas={'{taxas}'} /&gt;
-                {'\n    '}&lt;<span className="text-[#c7d5d6]">Depoimentos</span> origem=
-                <span className="text-[#e5c07b]">&quot;google&quot;</span> /&gt;
+                {'\n    '}&lt;<span className="text-[#c7d5d6]">Busca</span> hospedagens={'{casas}'} /&gt;
+                {'\n    '}&lt;<span className="text-[#c7d5d6]">Pagamento</span> via=
+                <span className="text-[#e5c07b]">&quot;mercado-pago&quot;</span> /&gt;
                 {'\n  '})
                 {'\n}'}
               </div>
               <div data-pane="4" className="absolute inset-0">
                 <Image
-                  src="/projetos/mcm-financiamentos.webp"
-                  alt="Site da MCM Financiamentos publicado"
+                  src="/projetos/refugio-nas-dunas.webp"
+                  alt="Site da Refúgio nas Dunas publicado"
                   fill
                   sizes="(max-width: 1024px) 90vw, 55vw"
                   className="object-cover object-top"
@@ -211,13 +211,13 @@ export const ProcessScroll = () => {
             aria-hidden="true"
             className="absolute -bottom-[8%] right-[-4%] z-10 w-[62%] rounded-xl bg-white px-4 py-3.5 font-[Arial,sans-serif] text-[#202124] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)] max-lg:bottom-[4%] max-lg:right-[4%] max-lg:w-[80%]"
           >
-            <small className="block text-[0.72rem] text-[#4d5156]">mcmfinanciamentos.com.br</small>
+            <small className="block text-[0.72rem] text-[#4d5156]">refugionasdunas.com.br</small>
             <b className="my-1 block text-base font-normal text-[#1a0dab]">
-              Financiamento Veicular Rápido e Fácil | MCM
+              Refúgio nas Dunas | Hospedagens em Barreirinhas
             </b>
             <p className="text-[0.78rem] leading-[1.45] text-[#4d5156]">
-              Realize o sonho do carro novo com as melhores taxas e condições de financiamento. Faça
-              sua simulação…
+              Viva uma experiência única nos Lençóis Maranhenses. Hospedagens selecionadas, passeios e
+              reserva online…
             </p>
           </div>
         </div>

@@ -22,7 +22,7 @@ const BREADCRUMBS = [
 ]
 const TITLE = 'Projetos'
 const DESCRIPTION =
-  'Sites, lojas virtuais e sistemas desenvolvidos pela GSR Sistemas para empresas reais: o problema, a solução e o que foi construído.'
+  'Sites, landing pages e experiências 3D desenvolvidos pela GSR Sistemas: o desafio, a solução e o que foi construído.'
 
 const TYPE_LABELS: Record<string, string> = {
   site: 'Site',
@@ -66,8 +66,8 @@ export default async function PortfolioPage() {
       <PageHero
         breadcrumbs={BREADCRUMBS}
         eyebrow="projetos"
-        title="Projetos reais, de clientes reais."
-        description="Cada um começou com um problema de negócio. Veja o que foi construído e como ficou no ar."
+        title="Projetos feitos do zero, no ar."
+        description="Sites para clientes e projetos autorais, cada um desenhado e desenvolvido do zero. Veja o que foi construído e como ficou no ar."
         aside={
           <dl className="grid grid-cols-2 gap-4">
             <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-7">

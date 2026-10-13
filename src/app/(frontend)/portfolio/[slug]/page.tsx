@@ -13,6 +13,7 @@ import { GOOGLE_REVIEWS, whatsappLink } from '@/lib/contact'
 import { getPayloadClient } from '@/lib/payload/client'
 import { getSiteSettings } from '@/lib/payload/queries'
 import { applyRedirect, lookupRedirect } from '@/lib/redirects/resolve'
+import { videoEmbedUrl } from '@/lib/video'
 import { buildMetadata } from '@/lib/seo/metadata'
 import {
   buildGraph,
@@ -108,6 +109,7 @@ export default async function CaseStudyPage({ params }: Props) {
   const features = item.features ?? []
   const whatsapp = site?.whatsapp ? whatsappLink(site.whatsapp, site.whatsappMessage) : null
   const typeLabel = TYPE_LABELS[item.projectType as string] ?? 'Projeto'
+  const video = videoEmbedUrl((item as { videoUrl?: string | null }).videoUrl)
 
   const position = all.findIndex((c) => c.id === item.id)
   const next = all.length > 1 ? all[(position + 1) % all.length] : null
@@ -212,6 +214,34 @@ export default async function CaseStudyPage({ params }: Props) {
         </section>
       ) : null}
 
+      {/* ── Vídeo ────────────────────────────────────────────────────────── */}
+      {video ? (
+        <section className="bg-paper pt-24 md:pt-32">
+          <div className="container-page">
+            <div className="grid items-end gap-6 md:grid-cols-[1fr_auto]">
+              <div>
+                <p className="eyebrow" data-reveal>
+                  em movimento
+                </p>
+                <h2 data-split className="mt-6 text-[2.1rem] leading-[1.08] md:text-[2.75rem]">
+                  Veja o projeto funcionando
+                </h2>
+              </div>
+            </div>
+            <div className="relative mt-12 aspect-video overflow-hidden rounded-[22px] bg-ink-950 shadow-[0_40px_80px_-40px_rgba(7,16,18,0.45)]" data-reveal>
+              <iframe
+                src={video}
+                title={`Vídeo do projeto ${item.title}`}
+                loading="lazy"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full border-0"
+              />
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {/* ── 3. Desafio e solução ─────────────────────────────────────────── */}
       {item.challenge || item.solution ? (
         <Section>
@@ -274,12 +304,20 @@ export default async function CaseStudyPage({ params }: Props) {
 
       {gallery.length > 0 ? (
         <Section>
-          <ul className="grid gap-6 md:grid-cols-2" data-reveal-stagger>
+          <SectionHeader eyebrow="por dentro" title="Telas do projeto" />
+          <ul className="mt-16 columns-1 gap-6 md:columns-2 [&>li]:mb-6 [&>li]:break-inside-avoid">
             {gallery.map((g: any) => (
-              <li key={g.image.id}>
+              <li key={g.image.id} data-reveal>
                 <figure>
-                  <div className="relative aspect-[16/10] overflow-hidden rounded-[22px] border border-ink-200 bg-ink-100">
-                    <Image src={g.image.url} alt={g.image.alt ?? ''} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover object-top" />
+                  <div className="overflow-hidden rounded-[22px] border border-ink-200 bg-ink-100">
+                    <Image
+                      src={g.image.url}
+                      alt={g.image.alt ?? ''}
+                      width={g.image.width ?? 1600}
+                      height={g.image.height ?? 1000}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="h-auto w-full"
+                    />
                   </div>
                   {g.caption ? <figcaption className="mt-3 text-[0.92rem] text-ink-500">{g.caption}</figcaption> : null}
                 </figure>

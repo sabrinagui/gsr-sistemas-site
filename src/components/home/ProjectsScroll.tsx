@@ -80,7 +80,7 @@ export const ProjectsScroll = ({ projects }: { projects: ScrollProject[] }) => {
         <div className="container-page grid min-h-screen items-center gap-16 py-24 lg:grid-cols-[0.85fr_1.15fr]">
           <div className="min-w-0">
             <p className="eyebrow eyebrow-dark">projetos</p>
-            <h2 className="mt-6 text-[2.75rem] leading-[1.06] text-white xl:text-[3.4rem]">Projetos reais, de clientes reais.</h2>
+            <h2 className="mt-6 text-[2.75rem] leading-[1.06] text-white xl:text-[3.4rem]">Projetos feitos do zero, no ar.</h2>
 
             {/* Projeto atual. A key força a animação de entrada a cada troca. */}
             <div key={current.slug} className="mt-14 animate-[fade-up_.6s_cubic-bezier(.22,1,.36,1)_both]">
@@ -120,7 +120,7 @@ export const ProjectsScroll = ({ projects }: { projects: ScrollProject[] }) => {
             {pinned ? (
               <div className="absolute inset-0">
               <Laptop3D
-                screens={projects.map((p) => p.image ?? '/projetos/mcm-financiamentos.webp')}
+                screens={projects.map((p) => p.image ?? '/projetos/refugio-nas-dunas.webp')}
                 index={active}
                 open
                 onToggle={() => goTo(Math.min(projects.length - 1, active + 1))}
@@ -134,7 +134,7 @@ export const ProjectsScroll = ({ projects }: { projects: ScrollProject[] }) => {
       {/* Celular e tablet: lista empilhada */}
       <div className="container-page py-24 lg:hidden">
         <p className="eyebrow eyebrow-dark">projetos</p>
-        <h2 className="mt-6 text-[2.1rem] leading-[1.08] text-white">Projetos reais, de clientes reais.</h2>
+        <h2 className="mt-6 text-[2.1rem] leading-[1.08] text-white">Projetos feitos do zero, no ar.</h2>
         <ul className="mt-14 grid gap-16">
           {projects.map((p) => (
             <li key={p.slug}>
