@@ -95,7 +95,7 @@ export const Header = async () => {
                 </Link>
 
                 {item.subItems.length > 0 ? (
-                  <div className="menu-panel invisible absolute left-0 top-full z-20 pt-3 opacity-0">
+                  <div className="invisible absolute left-0 top-full z-20 translate-y-1.5 pt-3 opacity-0 transition-[opacity,transform,visibility] duration-300 ease-[cubic-bezier(.22,1,.36,1)] group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
                     <div className="w-[26rem] rounded-2xl border border-white/[0.08] bg-ink-900 p-2 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)]">
                       <ul>
                         {item.subItems.map((sub) => (
