@@ -71,6 +71,7 @@ export const HeroShowcase = ({ projects }: { projects: ShowcaseProject[] }) => {
           </span>
           {open ? 'Clique ou arraste a tampa para fechar' : 'Clique para abrir o notebook'}
         </button>
+        {projects.length > 1 ? (
         <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Escolha o projeto na tela">
           {projects.map((p, i) => (
             <button
@@ -86,6 +87,7 @@ export const HeroShowcase = ({ projects }: { projects: ShowcaseProject[] }) => {
             </button>
           ))}
         </div>
+        ) : null}
       </div>
     </div>
   )

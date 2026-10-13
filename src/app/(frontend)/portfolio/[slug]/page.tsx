@@ -5,11 +5,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Where } from 'payload'
 
+import { HeroShowcase } from '@/components/home/HeroShowcase'
 import { JsonLd } from '@/components/seo/JsonLd'
-import { ArrowIcon, CtaBand, Section, SectionHeader } from '@/components/ui'
-import { LaptopFrame } from '@/components/ui/LaptopFrame'
-import { PageHero } from '@/components/ui/PageHero'
-import { whatsappLink } from '@/lib/contact'
+import { ArrowIcon, Breadcrumbs, GoogleIcon, Section, SectionHeader, WhatsAppIcon } from '@/components/ui'
+import { BrowserFrame } from '@/components/ui/BrowserFrame'
+import { GOOGLE_REVIEWS, whatsappLink } from '@/lib/contact'
 import { getPayloadClient } from '@/lib/payload/client'
 import { getSiteSettings } from '@/lib/payload/queries'
 import { applyRedirect, lookupRedirect } from '@/lib/redirects/resolve'
@@ -22,9 +22,16 @@ import {
 } from '@/lib/seo/schema'
 
 /**
- * Página de case: desafio, solução, o que foi construído, tecnologia e, quando
- * existir, resultado. `results` é opcional: melhor sem métrica do que com
- * métrica inventada.
+ * Página de projeto.
+ *
+ *   1. abertura escura: título grande, resumo, ficha técnica e o notebook 3D
+ *      abrindo com a tela do projeto
+ *   2. a tela do site em tamanho grande, numa janela de navegador
+ *   3. desafio e solução, funcionalidades e resultados (quando preenchidos)
+ *   4. galeria, depoimento, tecnologia e serviços
+ *   5. chamada e próximo projeto
+ *
+ * Nada aqui inventa conteúdo: seção sem dado no CMS não aparece.
  */
 
 export const revalidate = 3600
@@ -58,6 +65,8 @@ const getAllCases = async () => {
   const result = await payload.find({ collection: 'case-studies', where: published, sort: ['order', '-publishedAt'], limit: 100, depth: 1 })
   return result.docs
 }
+
+const hostOf = (url?: string | null) => (url ? url.replace(/^https?:\/\//, '').replace(/\/$/, '') : null)
 
 export async function generateStaticParams() {
   const cases = await getAllCases()
@@ -98,6 +107,7 @@ export default async function CaseStudyPage({ params }: Props) {
   const results = item.results ?? []
   const features = item.features ?? []
   const whatsapp = site?.whatsapp ? whatsappLink(site.whatsapp, site.whatsappMessage) : null
+  const typeLabel = TYPE_LABELS[item.projectType as string] ?? 'Projeto'
 
   const position = all.findIndex((c) => c.id === item.id)
   const next = all.length > 1 ? all[(position + 1) % all.length] : null
@@ -112,7 +122,7 @@ export default async function CaseStudyPage({ params }: Props) {
   const facts = [
     { label: 'Cliente', value: item.client },
     { label: 'Segmento', value: item.industry },
-    { label: 'Tipo', value: TYPE_LABELS[item.projectType as string] ?? item.projectType },
+    { label: 'Entrega', value: typeLabel },
     { label: 'Ano', value: item.year ? String(item.year) : null },
   ].filter((f) => Boolean(f.value))
 
@@ -126,44 +136,83 @@ export default async function CaseStudyPage({ params }: Props) {
         ])}
       />
 
-      <PageHero
-        breadcrumbs={breadcrumbs}
-        eyebrow={TYPE_LABELS[item.projectType as string] ?? 'projeto'}
-        title={item.title}
-        description={item.summary}
-      >
-        {facts.length > 0 ? (
-          <dl className="flex flex-wrap gap-x-12 gap-y-5 border-t border-white/10 pt-7">
-            {facts.map((fact) => (
-              <div key={fact.label}>
-                <dt className="font-mono text-[0.74rem] uppercase tracking-[0.08em] text-ink-500">{fact.label}</dt>
-                <dd className="mt-1 font-medium text-white">{fact.value}</dd>
-              </div>
-            ))}
-            {item.websiteUrl ? (
-              <div>
-                <dt className="font-mono text-[0.74rem] uppercase tracking-[0.08em] text-ink-500">No ar</dt>
-                <dd className="mt-1">
-                  <a href={item.websiteUrl} target="_blank" rel="noopener" className="font-medium text-accent-500">
-                    Visitar site ↗
-                  </a>
-                </dd>
-              </div>
-            ) : null}
-          </dl>
-        ) : null}
-      </PageHero>
-
-      {/* Notebook grande com o projeto, saindo do palco escuro para o papel. */}
-      <section className="relative bg-paper">
-        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[55%] bg-ink-950" />
-        <div className="container-page relative">
-          <div className="mx-auto max-w-[1100px]" data-reveal>
-            <LaptopFrame image={image?.url} alt={image?.alt ?? item.title} kind={item.projectType as never} priority />
+      {/* ── 1. Abertura ──────────────────────────────────────────────────── */}
+      <section data-hero className="bg-ink-950 text-ink-300">
+        <div className="container-page pb-10 pt-12 md:pt-16">
+          <div data-reveal="0">
+            <Breadcrumbs items={breadcrumbs} dark />
           </div>
+          <div className="mt-12 grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
+            <div className="min-w-0">
+              <p className="eyebrow eyebrow-dark" data-reveal="0">
+                {typeLabel.toLowerCase()}
+                {item.industry ? ` · ${item.industry.toLowerCase()}` : ''}
+              </p>
+              <h1 data-split className="mt-6 text-[3rem] font-bold leading-[0.98] tracking-[-0.045em] text-white md:text-[4.4rem] xl:text-[5.4rem]">
+                {item.title}
+              </h1>
+              {item.summary ? (
+                <p data-reveal="0.1" className="mt-7 max-w-[46ch] text-lg text-ink-400 md:text-[1.2rem]">
+                  {item.summary}
+                </p>
+              ) : null}
+              <div data-reveal="0.2" className="mt-10 flex flex-wrap gap-3">
+                {item.websiteUrl ? (
+                  <a href={item.websiteUrl} target="_blank" rel="noopener" className="btn btn-primary">
+                    Visitar o site
+                    <ArrowIcon className="btn-arrow h-[18px] w-[18px] -rotate-45" />
+                  </a>
+                ) : null}
+                {whatsapp ? (
+                  <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={item.websiteUrl ? 'btn btn-outline text-white' : 'btn btn-primary'}>
+                    <WhatsAppIcon />
+                    Quero um projeto assim
+                  </a>
+                ) : null}
+              </div>
+            </div>
+            <div className="min-w-0">
+              {image?.url ? <HeroShowcase projects={[{ name: item.title, image: image.url }]} /> : null}
+            </div>
+          </div>
+
+          {/* Ficha técnica */}
+          {facts.length > 0 ? (
+            <dl
+              data-reveal
+              className={`mt-14 grid gap-px overflow-hidden rounded-[22px] border border-white/10 bg-white/10 sm:grid-cols-2 ${
+                ['', 'lg:grid-cols-1', 'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4'][facts.length]
+              }`}
+            >
+              {facts.map((fact) => (
+                <div key={fact.label} className="bg-ink-950 p-6">
+                  <dt className="font-mono text-[0.72rem] uppercase tracking-[0.08em] text-ink-500">{fact.label}</dt>
+                  <dd className="mt-2 text-[1.1rem] font-medium text-white">{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
         </div>
       </section>
 
+      {/* ── 2. A tela em tamanho grande ──────────────────────────────────── */}
+      {image?.url ? (
+        <section className="relative bg-paper">
+          <span aria-hidden="true" className="absolute inset-x-0 top-0 h-40 bg-ink-950" />
+          <div className="container-page relative pt-10">
+            <div data-reveal className="mx-auto max-w-[1280px]">
+              <BrowserFrame
+                image={image.url}
+                alt={image.alt ?? `Página inicial do site ${item.title}`}
+                url={hostOf(item.websiteUrl) ?? `${item.slug}`}
+                sizes="(max-width: 1280px) 100vw, 1280px"
+              />
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {/* ── 3. Desafio e solução ─────────────────────────────────────────── */}
       {item.challenge || item.solution ? (
         <Section>
           <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
@@ -185,15 +234,22 @@ export default async function CaseStudyPage({ params }: Props) {
             ) : null}
           </div>
         </Section>
-      ) : null}
+      ) : (
+        <div className="bg-paper pb-8 pt-24 md:pt-32" />
+      )}
 
       {features.length > 0 ? (
         <Section tone="white">
           <SectionHeader eyebrow="o que foi construído" title="Funcionalidades" />
           <ul className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-reveal-stagger>
             {features.map((f: any) => (
-              <li key={f.title} className="rounded-3xl border border-ink-200 bg-paper p-8">
-                <h3 className="text-[1.3rem] tracking-tight">{f.title}</h3>
+              <li key={f.title} className="rounded-[28px] border border-ink-200 bg-paper p-8">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent-50 text-accent-700">
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+                    <path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <h3 className="mt-6 text-[1.3rem] tracking-tight">{f.title}</h3>
                 {f.description ? <p className="mt-2 text-ink-500">{f.description}</p> : null}
               </li>
             ))}
@@ -204,11 +260,11 @@ export default async function CaseStudyPage({ params }: Props) {
       {results.length > 0 ? (
         <Section tone="ink">
           <SectionHeader dark eyebrow="resultado" title="O que mudou" />
-          <dl className="mt-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-3" data-reveal-stagger>
+          <dl className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-reveal-stagger>
             {results.map((r: any) => (
-              <div key={r.label} className="border-t border-white/10 pt-8">
-                <dd className="font-display text-[3.2rem] font-extrabold leading-none tracking-tight text-accent-500">{r.value}</dd>
-                <dt className="mt-3 text-lg font-medium text-white">{r.label}</dt>
+              <div key={r.label} className="rounded-[28px] border border-white/10 bg-ink-900 p-9">
+                <dd className="font-display text-[3.6rem] font-extrabold leading-none tracking-tight text-accent-500">{r.value}</dd>
+                <dt className="mt-4 text-lg font-medium text-white">{r.label}</dt>
                 {r.description ? <p className="mt-2 text-ink-400">{r.description}</p> : null}
               </div>
             ))}
@@ -222,7 +278,7 @@ export default async function CaseStudyPage({ params }: Props) {
             {gallery.map((g: any) => (
               <li key={g.image.id}>
                 <figure>
-                  <div className="relative aspect-[16/10] overflow-hidden rounded-3xl border border-ink-200 bg-ink-100">
+                  <div className="relative aspect-[16/10] overflow-hidden rounded-[22px] border border-ink-200 bg-ink-100">
                     <Image src={g.image.url} alt={g.image.alt ?? ''} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover object-top" />
                   </div>
                   {g.caption ? <figcaption className="mt-3 text-[0.92rem] text-ink-500">{g.caption}</figcaption> : null}
@@ -236,7 +292,10 @@ export default async function CaseStudyPage({ params }: Props) {
       {testimonial ? (
         <Section tone="white">
           <figure className="mx-auto max-w-4xl text-center" data-reveal>
-            <p className="tracking-[3px] text-star">{'★'.repeat(testimonial.rating ?? 5)}</p>
+            <p className="flex items-center justify-center gap-3">
+              <GoogleIcon className="h-5 w-5" />
+              <span className="tracking-[3px] text-star">{'★'.repeat(testimonial.rating ?? 5)}</span>
+            </p>
             <blockquote className="mt-6 text-[1.6rem] font-medium leading-snug tracking-tight text-ink-950 md:text-[2.2rem]">
               “{testimonial.testimonial}”
             </blockquote>
@@ -249,12 +308,12 @@ export default async function CaseStudyPage({ params }: Props) {
       ) : null}
 
       {technologies.length > 0 || services.length > 0 ? (
-        <Section className="!py-20">
-          <div className="grid gap-10 md:grid-cols-2">
+        <section className="bg-paper pb-24">
+          <div className="container-page grid gap-10 border-t border-ink-200 pt-14 md:grid-cols-2">
             {technologies.length > 0 ? (
               <div>
-                <p className="eyebrow">tecnologia</p>
-                <ul className="mt-6 flex flex-wrap gap-2">
+                <p className="font-mono text-[0.74rem] uppercase tracking-[0.08em] text-ink-500">Tecnologia</p>
+                <ul className="mt-5 flex flex-wrap gap-2">
                   {technologies.map((t: any) => (
                     <li key={t.id} className="rounded-full border border-ink-200 bg-white px-4 py-2 font-mono text-[0.85rem] text-ink-700">
                       {t.name}
@@ -265,8 +324,8 @@ export default async function CaseStudyPage({ params }: Props) {
             ) : null}
             {services.length > 0 ? (
               <div>
-                <p className="eyebrow">serviços</p>
-                <ul className="mt-6 flex flex-wrap gap-2">
+                <p className="font-mono text-[0.74rem] uppercase tracking-[0.08em] text-ink-500">Serviços</p>
+                <ul className="mt-5 flex flex-wrap gap-2">
                   {services.map((s: any) => (
                     <li key={s.id}>
                       <Link href={`/${s.slug}/`} className="inline-block rounded-full bg-ink-950 px-4 py-2 text-[0.9rem] font-medium text-white no-underline hover:bg-accent-700">
@@ -278,31 +337,55 @@ export default async function CaseStudyPage({ params }: Props) {
               </div>
             ) : null}
           </div>
-        </Section>
-      ) : null}
-
-      {next ? (
-        <section className="bg-ink-950">
-          <Link href={`/portfolio/${next.slug}/`} className="group container-page grid items-center gap-10 py-20 no-underline md:grid-cols-[1fr_0.8fr] md:py-28">
-            <div>
-              <p className="font-mono text-[0.78rem] uppercase tracking-[0.08em] text-ink-500">Próximo projeto</p>
-              <p className="mt-4 flex items-center gap-4 font-display text-[2.4rem] font-bold leading-tight tracking-tight text-white md:text-[3.6rem]">
-                {next.title}
-                <ArrowIcon className="arrow-slide h-10 w-10 text-accent-500" />
-              </p>
-            </div>
-            <div className="transition-transform duration-700 group-hover:-translate-y-2">
-              <LaptopFrame image={nextImage?.url} alt="" kind={next.projectType as never} />
-            </div>
-          </Link>
         </section>
       ) : null}
 
-      <CtaBand
-        title="Quer um projeto assim para a sua empresa?"
-        description="Conte o que você precisa e receba uma proposta com escopo, prazo e valor."
-        whatsappHref={whatsapp}
-      />
+      {/* ── 5. Chamada + próximo projeto ─────────────────────────────────── */}
+      <section className="bg-paper pb-24 md:pb-32">
+        <div className="container-page">
+          <div className="grid items-center gap-8 rounded-[32px] bg-white p-8 shadow-[0_30px_60px_-40px_rgba(7,16,18,0.35)] md:grid-cols-[1fr_auto] md:p-14" data-reveal>
+            <div>
+              <p className="font-display text-[2rem] font-bold leading-tight tracking-tight md:text-[2.8rem]">
+                Quer um projeto assim para a sua empresa?
+              </p>
+              <p className="mt-3 flex items-center gap-2 text-ink-500">
+                <GoogleIcon className="h-4 w-4" /> Nota {GOOGLE_REVIEWS.rating} no Google · proposta com escopo, prazo e valor
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {whatsapp ? (
+                <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-on-light">
+                  <WhatsAppIcon />
+                  Falar no WhatsApp
+                </a>
+              ) : null}
+              <Link href="/orcamento/" className="btn btn-outline text-ink-950">
+                Pedir orçamento
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {next ? (
+        <section className="bg-ink-950">
+          <Link href={`/portfolio/${next.slug}/`} className="group container-page grid items-center gap-12 py-24 no-underline lg:grid-cols-[1fr_1.1fr] md:py-32">
+            <div>
+              <p className="font-mono text-[0.78rem] uppercase tracking-[0.08em] text-ink-500">Próximo projeto</p>
+              <p className="mt-5 font-display text-[3rem] font-bold leading-[0.98] tracking-[-0.045em] text-white transition-colors group-hover:text-accent-500 md:text-[4.6rem]">
+                {next.title}
+              </p>
+              <span className="mt-8 inline-flex items-center gap-4 font-medium text-white">
+                <span className="go-circle border-white/15">
+                  <ArrowIcon className="h-5 w-5" />
+                </span>
+                Ver o projeto
+              </span>
+            </div>
+            <BrowserFrame image={nextImage?.url} alt="" url={hostOf(next.websiteUrl) ?? next.slug} dark />
+          </Link>
+        </section>
+      ) : null}
     </>
   )
 }

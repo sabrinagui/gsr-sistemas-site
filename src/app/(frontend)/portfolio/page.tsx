@@ -1,20 +1,17 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { ProjectList } from '@/components/portfolio/ProjectList'
 import { JsonLd } from '@/components/seo/JsonLd'
-import { CtaBand } from '@/components/ui'
-import { LaptopFrame } from '@/components/ui/LaptopFrame'
+import { CtaBand, GoogleIcon } from '@/components/ui'
 import { PageHero } from '@/components/ui/PageHero'
-import { whatsappLink } from '@/lib/contact'
+import { GOOGLE_REVIEWS, whatsappLink } from '@/lib/contact'
 import { getPayloadClient } from '@/lib/payload/client'
 import { getSiteSettings } from '@/lib/payload/queries'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { buildGraph, generateBreadcrumbSchema, generateWebPageSchema } from '@/lib/seo/schema'
 
-/**
- * Portfólio. Responde 404 enquanto não houver case publicado e autorizado.
- */
+/** Portfólio. Responde 404 enquanto não houver projeto publicado e autorizado. */
 
 export const revalidate = 3600
 
@@ -71,38 +68,46 @@ export default async function PortfolioPage() {
         eyebrow="projetos"
         title="Projetos reais, de clientes reais."
         description="Cada um começou com um problema de negócio. Veja o que foi construído e como ficou no ar."
+        aside={
+          <dl className="grid grid-cols-2 gap-4">
+            <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-7">
+              <dt className="font-mono text-[0.74rem] uppercase tracking-[0.08em] text-ink-500">Projetos no ar</dt>
+              <dd className="mt-3 font-display text-[3.4rem] font-extrabold leading-none tracking-tight text-white">
+                {String(cases.length).padStart(2, '0')}
+              </dd>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-7">
+              <dt className="flex items-center gap-2 font-mono text-[0.74rem] uppercase tracking-[0.08em] text-ink-500">
+                <GoogleIcon className="h-4 w-4" /> Google
+              </dt>
+              <dd className="mt-3 font-display text-[3.4rem] font-extrabold leading-none tracking-tight text-white">
+                {GOOGLE_REVIEWS.rating}
+              </dd>
+            </div>
+          </dl>
+        }
       />
 
-      <section className="bg-ink-950 pb-28 pt-4 md:pb-36">
-        <ul className="container-page grid gap-x-12 gap-y-20 md:grid-cols-2" data-reveal-stagger>
-          {cases.map((item) => {
-            const image = typeof item.featuredImage === 'object' ? item.featuredImage : null
-            return (
-              <li key={item.id}>
-                <Link href={`/portfolio/${item.slug}/`} className="group block no-underline">
-                  <div className="transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] group-hover:-translate-y-2">
-                    <LaptopFrame image={image?.url} alt={image?.alt ?? ''} kind={item.projectType as never} />
-                  </div>
-                  <div className="mt-8 flex flex-wrap items-baseline justify-between gap-3">
-                    <h2 className="text-[1.7rem] tracking-tight text-white md:text-[2rem]">
-                      <span className="underline-grow">{item.title}</span>
-                    </h2>
-                    <span className="font-mono text-[0.78rem] uppercase tracking-[0.06em] text-accent-500">
-                      {TYPE_LABELS[item.projectType as string] ?? item.projectType}
-                      {item.industry ? ` · ${item.industry}` : ''}
-                    </span>
-                  </div>
-                  {item.summary ? <p className="mt-3 max-w-[56ch] text-lg text-ink-400">{item.summary}</p> : null}
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
+      <section className="bg-paper py-20 md:py-28">
+        <div className="container-page">
+          <ProjectList
+            projects={cases.map((item) => ({
+              slug: item.slug as string,
+              title: item.title,
+              type: item.projectType as string,
+              typeLabel: TYPE_LABELS[item.projectType as string] ?? 'Projeto',
+              industry: item.industry,
+              summary: item.summary,
+              image: typeof item.featuredImage === 'object' ? (item.featuredImage?.url ?? null) : null,
+              url: item.websiteUrl ? item.websiteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '') : null,
+            }))}
+          />
+        </div>
       </section>
 
       <CtaBand
         title="O próximo projeto pode ser o seu."
-        description="Conte o que sua empresa precisa e receba uma proposta com escopo, prazo e valor."
+        description="Conte o que sua empresa precisa e receba uma proposta com escopo, prazo e valor fechados."
         whatsappHref={whatsapp}
       />
     </>
