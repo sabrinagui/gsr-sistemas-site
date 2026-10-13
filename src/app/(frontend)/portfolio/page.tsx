@@ -41,7 +41,7 @@ const getCases = async () => {
   const result = await payload.find({
     collection: 'case-studies',
     where: { and: [{ _status: { equals: 'published' } }, { clientApproved: { equals: true } }] },
-    sort: '-featured',
+    sort: ['order', '-publishedAt'],
     limit: 50,
     depth: 1,
   })

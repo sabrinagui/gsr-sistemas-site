@@ -55,7 +55,7 @@ const getCase = async (slug: string) => {
 
 const getAllCases = async () => {
   const payload = await getPayloadClient()
-  const result = await payload.find({ collection: 'case-studies', where: published, sort: '-featured', limit: 100, depth: 1 })
+  const result = await payload.find({ collection: 'case-studies', where: published, sort: ['order', '-publishedAt'], limit: 100, depth: 1 })
   return result.docs
 }
 

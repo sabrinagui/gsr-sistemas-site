@@ -5,7 +5,8 @@ import { slugField } from '@/fields/slug'
 import { revalidateAfterChange, revalidateAfterDelete } from '@/hooks/revalidate'
 
 /**
- * Cases.
+ * Projetos (cases). Aparecem na home, em /portfolio/ e cada um tem página própria
+ * em /portfolio/<slug>/.
  *
  * Duas garantias contra conteúdo inventado:
  *  - `clientApproved` bloqueia a publicação sem autorização do cliente;
@@ -14,11 +15,11 @@ import { revalidateAfterChange, revalidateAfterDelete } from '@/hooks/revalidate
  */
 export const CaseStudies: CollectionConfig = {
   slug: 'case-studies',
-  labels: { singular: 'Case', plural: 'Cases' },
+  labels: { singular: 'Projeto', plural: 'Projetos' },
   admin: {
     useAsTitle: 'title',
     group: 'Conteúdo',
-    defaultColumns: ['title', 'client', 'projectType', 'clientApproved', '_status'],
+    defaultColumns: ['title', 'projectType', 'order', 'clientApproved', '_status'],
     livePreview: {
       url: ({ data }) => `/preview?collection=case-studies&slug=${data?.slug}`,
     },
@@ -37,7 +38,7 @@ export const CaseStudies: CollectionConfig = {
         const approved = data?.clientApproved ?? originalDoc?.clientApproved
         if (status === 'published' && !approved) {
           throw new Error(
-            'Este case não pode ser publicado sem a autorização do cliente. Marque "Autorizado pelo cliente" na barra lateral.',
+            'Este projeto não pode ser publicado sem a autorização do cliente. Marque "Autorizado pelo cliente" na barra lateral.',
           )
         }
         return data
@@ -45,15 +46,15 @@ export const CaseStudies: CollectionConfig = {
     ],
     afterChange: [
       revalidateAfterChange({
-        path: (doc) => (doc?.slug ? `/portfolio/${doc.slug}` : null),
-        listings: ['/portfolio', '/'],
+        path: (doc) => (doc?.slug ? `/portfolio/${doc.slug}/` : null),
+        listings: ['/portfolio/', '/'],
         tags: ['cases'],
       }),
     ],
     afterDelete: [
       revalidateAfterDelete({
-        path: (doc) => (doc?.slug ? `/portfolio/${doc.slug}` : null),
-        listings: ['/portfolio'],
+        path: (doc) => (doc?.slug ? `/portfolio/${doc.slug}/` : null),
+        listings: ['/portfolio/', '/'],
         tags: ['cases'],
       }),
     ],
@@ -125,7 +126,16 @@ export const CaseStudies: CollectionConfig = {
         {
           label: 'Imagens',
           fields: [
-            { name: 'featuredImage', type: 'upload', relationTo: 'media' },
+            {
+              name: 'featuredImage',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Captura da tela',
+              admin: {
+                description:
+                  'Print da página inicial do site, na proporção 16:10 (ideal: 1600 × 1000 px). É a imagem que aparece dentro do notebook na home e na página do projeto.',
+              },
+            },
             {
               name: 'gallery',
               type: 'array',
@@ -158,7 +168,19 @@ export const CaseStudies: CollectionConfig = {
         description: 'Obrigatório para publicar. Nome de cliente só vai ao ar com autorização.',
       },
     },
-    { name: 'featured', type: 'checkbox', label: 'Destaque', admin: { position: 'sidebar' } },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      label: 'Mostrar na home',
+      admin: { position: 'sidebar', description: 'Aparece na seção de projetos da página inicial.' },
+    },
+    {
+      name: 'order',
+      type: 'number',
+      label: 'Ordem',
+      defaultValue: 0,
+      admin: { position: 'sidebar', description: 'Menor aparece primeiro (1, 2, 3...).' },
+    },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },
   ],
 }

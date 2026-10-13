@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { HeroShowcase } from '@/components/home/HeroShowcase'
+import { ProjectsScroll } from '@/components/home/ProjectsScroll'
 import { ProcessScroll } from '@/components/home/ProcessScroll'
 import { QuickLeadForm } from '@/components/home/QuickLeadForm'
 import { JsonLd } from '@/components/seo/JsonLd'
@@ -15,7 +16,6 @@ import {
   SectionHeader,
   WhatsAppIcon,
 } from '@/components/ui'
-import { ProjectShowcase } from '@/components/ui/ProjectShowcase'
 import { formatBrazilianPhone, GOOGLE_REVIEWS, whatsappLink } from '@/lib/contact'
 import {
   getFeaturedCases,
@@ -46,6 +46,15 @@ import { buildGraph, generateFaqSchema, generateWebPageSchema } from '@/lib/seo/
 export const revalidate = 3600
 
 const GOOGLE = GOOGLE_REVIEWS
+
+const CASE_TYPE_LABELS: Record<string, string> = {
+  site: 'Site',
+  sistema: 'Sistema',
+  'landing-page': 'Landing page',
+  'loja-virtual': 'Loja virtual',
+  automacao: 'Automação',
+  app: 'Aplicativo',
+}
 
 const FAQ = [
   {
@@ -106,7 +115,7 @@ export default async function HomePage() {
   const [site, services, cases, testimonials, posts] = await Promise.all([
     getSiteSettings(),
     getNavServices(),
-    getFeaturedCases(6),
+    getFeaturedCases(8, true),
     getFeaturedTestimonials(3),
     getRecentPosts(3),
   ])
@@ -266,45 +275,16 @@ export default async function HomePage() {
       {/* ── Como trabalhamos (fixa durante a rolagem) ────────────────────── */}
       <ProcessScroll />
 
-      {/* ── Vitrine de projetos (a esteira em perspectiva da base) ───────── */}
-      {cases.length > 0 ? (
-        <section id="portfolio" className="overflow-hidden bg-ink-950 pb-28 pt-8 md:pb-36">
-          <div className="container-page">
-            <SectionHeader
-              dark
-              eyebrow="projetos"
-              title="Projetos reais, de clientes reais."
-              aside={
-                <Link
-                  href="/portfolio/"
-                  className="group mt-6 inline-flex items-center gap-2 font-semibold text-accent-500 no-underline"
-                >
-                  <span className="underline-grow">Ver todos os projetos</span>
-                  <ArrowIcon className="arrow-slide h-4 w-4" />
-                </Link>
-              }
-              description="Cada um começou com um problema de negócio. Veja como ele foi resolvido."
-            />
-          </div>
-          <div className="mt-16">
-            <ProjectShowcase
-              projects={cases.map((item) => {
-                const image = typeof item.featuredImage === 'object' ? item.featuredImage : null
-                return {
-                  id: item.id,
-                  slug: item.slug as string,
-                  title: item.title,
-                  summary: item.summary,
-                  industry: item.industry,
-                  projectType: item.projectType as string,
-                  image: image?.url ?? null,
-                  imageAlt: image?.alt ?? '',
-                }
-              })}
-            />
-          </div>
-        </section>
-      ) : null}
+      {/* ── Projetos: guiados pela rolagem, com o notebook 3D ─────────── */}
+      <ProjectsScroll
+        projects={cases.map((item) => ({
+          slug: item.slug as string,
+          title: item.title,
+          type: CASE_TYPE_LABELS[item.projectType as string] ?? 'Projeto',
+          summary: item.summary,
+          image: typeof item.featuredImage === 'object' ? (item.featuredImage?.url ?? null) : null,
+        }))}
+      />
 
       {/* ── Avaliações do Google ─────────────────────────────────────────── */}
       {testimonials.length > 0 ? (

@@ -88,8 +88,37 @@ const LaptopModel = ({ screens, index, open, onToggle, reducedMotion }: LaptopPr
     t.anisotropy = 8
   })
   const logoTex = textures[textures.length - 1]
-  const screenTex = textures[Math.min(index, screens.length - 1)]
   const keyboard = useKeyboardTexture()
+
+  // Troca de projeto: a tampa fecha até a metade, a tela apaga, a captura
+  // troca e a tampa reabre. O índice exibido segue o pedido com atraso.
+  const [shown, setShown] = useState(index)
+  const screenTex = textures[Math.min(shown, screens.length - 1)]
+  const openRef = useRef(open)
+  openRef.current = open
+
+  const firstRun = useRef(true)
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false
+      return
+    }
+    if (!openRef.current || reducedMotion) {
+      setShown(index)
+      return
+    }
+    target.current = 0.95
+    const swap = setTimeout(() => setShown(index), 260)
+    const reopen = setTimeout(() => {
+      if (!drag.current && openRef.current) target.current = OPEN
+    }, 330)
+    return () => {
+      clearTimeout(swap)
+      clearTimeout(reopen)
+    }
+    // Só reage a um novo pedido de projeto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index])
 
   useEffect(() => {
     if (!drag.current) target.current = open ? OPEN : CLOSED

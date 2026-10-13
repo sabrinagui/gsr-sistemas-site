@@ -78,23 +78,29 @@ export const getPublishedCaseCount = unstable_cache(
   { tags: ['cases'], revalidate: 3600 },
 )
 
-/** Cases em destaque. Só publicados e autorizados pelo cliente. */
-export const getFeaturedCases = (limit = 3) =>
+/**
+ * Projetos publicados e autorizados, na ordem definida no painel.
+ * Com onlyHome, só os marcados como "Mostrar na home" (se nenhum estiver
+ * marcado, cai para todos, para a home nunca ficar sem projetos).
+ */
+export const getFeaturedCases = (limit = 3, onlyHome = false) =>
   unstable_cache(
     async () => {
       const payload = await getPayloadClient()
-      const result = await payload.find({
-        collection: 'case-studies',
-        where: {
-          and: [{ _status: { equals: 'published' } }, { clientApproved: { equals: true } }],
-        },
-        sort: '-featured',
-        limit,
-        depth: 1,
-      })
+      const base = [{ _status: { equals: 'published' } }, { clientApproved: { equals: true } }]
+      const find = (extra: object[]) =>
+        payload.find({
+          collection: 'case-studies',
+          where: { and: [...base, ...extra] } as never,
+          sort: ['order', '-publishedAt'],
+          limit,
+          depth: 1,
+        })
+      let result = await find(onlyHome ? [{ featured: { equals: true } }] : [])
+      if (onlyHome && result.docs.length === 0) result = await find([])
       return result.docs
     },
-    ['featured-cases', String(limit)],
+    ['featured-cases', String(limit), String(onlyHome)],
     { tags: ['cases'], revalidate: 3600 },
   )()
 
