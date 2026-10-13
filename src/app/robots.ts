@@ -2,6 +2,9 @@ import type { MetadataRoute } from 'next'
 
 import { absoluteUrl } from '@/lib/seo/url'
 
+// SITE_ENV changes at cutover; do not bake preview rules into the image.
+export const dynamic = 'force-dynamic'
+
 /**
  * Sem Disallow de CSS ou JS: bloqueá-los impede o Google de renderizar a página.
  *

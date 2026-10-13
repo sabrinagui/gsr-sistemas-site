@@ -5,6 +5,7 @@ import { absoluteUrl } from '@/lib/seo/url'
 /** RSS do blog. /feed/ do WordPress redireciona para cá. */
 
 export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
 const escape = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')

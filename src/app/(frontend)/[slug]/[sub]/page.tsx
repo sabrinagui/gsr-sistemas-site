@@ -54,6 +54,7 @@ const resolveContent = async (slug: string, sub: string) => {
 }
 
 export async function generateStaticParams() {
+  if (process.env.GSR_IMAGE_BUILD === '1') return []
   const payload = await getPayloadClient()
   const [locations, services] = await Promise.all([
     payload.find({

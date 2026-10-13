@@ -1,6 +1,8 @@
 node_modules
 .next
 .env
+.env*
+!.env.example
 .env.local
 .env*.local
 *.tsbuildinfo
@@ -11,5 +13,8 @@ src/payload-types.ts
 docs/data/*.csv
 docs/data/*.txt
 
-# Uploads locais do Payload (produção usa o R2). Regerados por npm run seed:real.
+# Uploads do Payload; produção preserva os arquivos no volume gsr-media.
 /media
+*.bak-*
+*.dump
+/deploy-export

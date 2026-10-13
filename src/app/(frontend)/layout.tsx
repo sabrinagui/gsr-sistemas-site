@@ -19,6 +19,10 @@ import {
 
 import './globals.css'
 
+// The image is built without access to production content or database secrets.
+// Keep the existing query cache, but render pages using the restored live data.
+export const dynamic = 'force-dynamic'
+
 /**
  * Archivo nos títulos (encorpada como o "GSR" da logo), Geist no texto, Geist
  * Mono nos rótulos e Mrs Saint Delafield só na assinatura da Sabrina. O

@@ -70,6 +70,7 @@ const getAllCases = async () => {
 const hostOf = (url?: string | null) => (url ? url.replace(/^https?:\/\//, '').replace(/\/$/, '') : null)
 
 export async function generateStaticParams() {
+  if (process.env.GSR_IMAGE_BUILD === '1') return []
   const cases = await getAllCases()
   return cases.map((doc) => ({ slug: doc.slug as string }))
 }

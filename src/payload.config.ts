@@ -24,6 +24,7 @@ import { Footer } from '@/globals/Footer'
 import { Header } from '@/globals/Header'
 import { SEOSettings } from '@/globals/SEOSettings'
 import { SiteSettings } from '@/globals/SiteSettings'
+import { disabledEmailAdapter } from '@/lib/payload/disabled-email'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -84,6 +85,7 @@ export default buildConfig({
    * GET /api/payload-jobs/run com "Authorization: Bearer $CRON_SECRET".
    */
   jobs: {
+    shouldAutoRun: () => process.env.GSR_IMAGE_BUILD !== '1' && process.env.PAYLOAD_MIGRATING !== 'true',
     access: {
       run: ({ req }) => {
         if (req.user) return true
@@ -94,9 +96,11 @@ export default buildConfig({
     autoRun: process.env.VERCEL ? undefined : [{ cron: '* * * * *', queue: 'default' }],
   },
 
-  // Neon. A string precisa ser a de pooling — ver payload-schema.md, 8.1.
+  // PostgreSQL exclusivo do compose; schema de produção gerenciado por migrations.
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URI ?? '' },
+    migrationDir: path.resolve(dirname, 'migrations'),
+    push: process.env.NODE_ENV !== 'production',
   }),
 
   /**
@@ -129,7 +133,9 @@ export default buildConfig({
         defaultFromName: 'GSR Sistemas',
         apiKey: process.env.RESEND_API_KEY as string,
       })
-    : undefined,
+    : process.env.NODE_ENV === 'production'
+      ? disabledEmailAdapter
+      : undefined,
 
   secret: process.env.PAYLOAD_SECRET ?? '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },

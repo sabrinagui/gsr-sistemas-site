@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import path from 'node:path'
 
 /**
  * As 62 mídias do site atual estão sem alt — todas. Aqui o alt é obrigatório,
@@ -21,6 +22,7 @@ export const Media: CollectionConfig = {
     defaultColumns: ['filename', 'alt', 'isDecorative', 'updatedAt'],
   },
   upload: {
+    staticDir: path.resolve(process.cwd(), 'media'),
     mimeTypes: ['image/*', 'video/*', 'application/pdf'],
     focalPoint: true,
     imageSizes: [

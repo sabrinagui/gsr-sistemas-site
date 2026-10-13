@@ -460,8 +460,8 @@ Sem rolagem horizontal em nenhuma largura. Tabela e bloco de código com rolagem
 - [ ] Lighthouse ≥ 95 nas cinco páginas principais
 - [ ] Nenhum link interno quebrado ou apontando para redirect
 - [ ] GA4 e GTM disparando com os IDs existentes
-- [ ] Neon: branch de produção separado do de preview; conexão com pool configurada
-- [ ] R2: bucket público acessível, domínio da mídia em `remotePatterns`
+- [ ] PostgreSQL 18 exclusivo: dump restaurado, schema e contagens conferidos, baseline das migrations validado
+- [ ] Volume gsr-media: arquivos e checksums conferidos, upload e restauração testados
 - [ ] Resend: SPF e DKIM verificados; lead gravado no banco mesmo se o e-mail falhar
 
 **Depois**
@@ -478,14 +478,15 @@ Sem rolagem horizontal em nenhuma largura. Tabela e bloco de código com rolagem
 
 ## 18. Infraestrutura
 
-Definida. Detalhamento em `payload-schema.md` §8.1.
+Destino atualizado: Docker no servidor existente. O plano anterior de Vercel,
+Neon e R2 foi abandonado. Runbook operacional: `deploy/README.md`.
 
 | Camada | Serviço |
 |---|---|
-| Banco | Neon (PostgreSQL) |
-| Mídia | Cloudflare R2 |
+| Banco | PostgreSQL 18 no container exclusivo gsr-db, sem porta pública |
+| Mídia | Disco persistente no volume exclusivo gsr-media |
 | E-mail | Resend |
-| Hospedagem | Vercel |
+| Hospedagem | Next.js/Payload no container gsr-app; proxy e SSL no Nginx/aaPanel existente |
 | DNS | Registrador atual, simples. Cloudflare só se houver necessidade concreta |
 
 A ausência do Cloudflare por ora **simplifica** a correção do `www`: a mudança é feita direto no servidor e no DNS atual, e a verificação por `curl` reflete o comportamento real, sem camada de borda no meio.
@@ -501,4 +502,4 @@ A ausência do Cloudflare por ora **simplifica** a correção do `www`: a mudan�
 | 3 | Acesso ao Search Console e ao GA4 | Exports, verificação de propriedade e envio do sitemap |
 | 4 | Subdomínio para envio transacional | Configuração de SPF/DKIM no Resend |
 
-**Resolvidas nesta revisão:** banco (Neon) · mídia (R2) · e-mail (Resend) · hospedagem (Vercel) · DNS (sem Cloudflare por ora) · runbook do `www` aprovado · FAQ schema opcional · avaliações sem `AggregateRating`/`Review`.
+**Destino atualizado:** banco (PostgreSQL 18 exclusivo) · mídia (volume persistente) · e-mail (Resend) · hospedagem (Docker no servidor; SSL no aaPanel) · DNS (sem Cloudflare por ora). A troca do domínio exige OK explícito sobre o diff e o horário. FAQ schema opcional; avaliações sem `AggregateRating`/`Review`.

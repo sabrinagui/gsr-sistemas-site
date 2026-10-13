@@ -38,6 +38,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 export async function generateStaticParams() {
+  if (process.env.GSR_IMAGE_BUILD === '1') return []
   const posts = await getAllPosts()
   return posts.map((post) => {
     const [, slug, sub, day, slugPost] = postPath(post).split('/')

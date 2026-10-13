@@ -1,0 +1,126 @@
+name: gsr-site
+services:
+  gsr-db:
+    image: postgres:18-bookworm
+    container_name: gsr-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gsr
+      POSTGRES_USER: gsr
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - gsr-db-data:/var/lib/postgresql
+    networks: [gsr-network]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U gsr -d gsr']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    mem_limit: 768m
+    cpus: 0.75
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+
+  gsr-migrate:
+    image: ${GSR_IMAGE:?Set GSR_IMAGE to an immutable ghcr.io image tag}
+    restart: 'no'
+    env_file: .env
+    environment:
+      NODE_ENV: production
+    depends_on:
+      gsr-db: {condition: service_healthy}
+    entrypoint: [/bin/sh, -ec]
+    command:
+      - |
+        test "$${GSR_MIGRATIONS_READY:-0}" = 1 || { echo 'Import/baseline not verified'; exit 1; }
+        exec node node_modules/payload/bin.js migrate
+    networks: [gsr-network]
+    mem_limit: 768m
+    cpus: 0.75
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+
+  gsr-app:
+    image: ${GSR_IMAGE:?Set GSR_IMAGE to an immutable ghcr.io image tag}
+    container_name: gsr-app
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      NODE_OPTIONS: --max-old-space-size=1024
+    depends_on:
+      gsr-db: {condition: service_healthy}
+      gsr-migrate: {condition: service_completed_successfully}
+    ports:
+      - '127.0.0.1:${GSR_APP_PORT:-13020}:3000'
+    volumes:
+      - gsr-media:/app/media
+    networks: [gsr-network]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      start_period: 90s
+      retries: 5
+    mem_limit: 1536m
+    cpus: 1.0
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+
+  gsr-backup:
+    image: postgres:18-bookworm
+    profiles: [maintenance]
+    restart: 'no'
+    environment:
+      PGHOST: gsr-db
+      PGUSER: gsr
+      PGDATABASE: gsr
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    entrypoint: [/bin/sh, -ec]
+    command:
+      - |
+        umask 077
+        cd /backups
+        base="gsr-$$(date -u +%Y%m%d-%H%M%S)"
+        trap 'rm -f -- "$$base.dump.partial" "$$base.media.tar.gz.partial"' EXIT
+        test ! -e "$$base.dump"
+        pg_dump -Fc --no-owner --no-acl > "$$base.dump.partial"
+        test -s "$$base.dump.partial"
+        pg_restore --list "$$base.dump.partial" > /dev/null
+        tar -czf "$$base.media.tar.gz.partial" -C /media .
+        test -s "$$base.media.tar.gz.partial"
+        mv -- "$$base.dump.partial" "$$base.dump"
+        mv -- "$$base.media.tar.gz.partial" "$$base.media.tar.gz"
+        sha256sum "$$base.dump" "$$base.media.tar.gz" > "$$base.sha256"
+        find /backups -maxdepth 1 -type f \( -name 'gsr-*.dump' -o -name 'gsr-*.media.tar.gz' -o -name 'gsr-*.sha256' \) -mtime +13 -delete
+        echo "Database and media backup verified: $$base"
+    volumes:
+      - ./backups:/backups
+      - gsr-media:/media:ro
+    networks: [gsr-network]
+    mem_limit: 256m
+    cpus: 0.5
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+
+networks:
+  gsr-network:
+    name: gsr-network
+    ipam:
+      config:
+        - subnet: 10.203.20.0/24
+volumes:
+  gsr-db-data:
+    name: gsr-db-data
+  gsr-media:
+    name: gsr-media

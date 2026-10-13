@@ -17,6 +17,12 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  experimental: {
+    cpus: 1,
+    webpackBuildWorker: true,
+    webpackMemoryOptimizations: true,
+  },
   // Forma canônica com barra final, a mesma do WordPress. Mantém idênticas as
   // URLs que o Google já indexou (decisão de 13/10/2026, revisando a FASE 2).
   trailingSlash: true,

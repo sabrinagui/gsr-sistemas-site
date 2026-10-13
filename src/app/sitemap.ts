@@ -16,6 +16,7 @@ import { absoluteUrl } from '@/lib/seo/url'
  */
 
 export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
 type Entry = MetadataRoute.Sitemap[number]
 
