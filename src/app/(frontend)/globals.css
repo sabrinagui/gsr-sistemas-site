@@ -1,0 +1,535 @@
+@import 'tailwindcss';
+
+/**
+ * Sistema visual da GSR.
+ *
+ * Direção: editorial-técnica. Tipografia grande e com personalidade, fios finos
+ * em vez de cartões com sombra, seções numeradas, muito espaço em branco e UM
+ * acento de cor. Hierarquia vem de peso, escala e espaço — não de cor e efeito.
+ *
+ * O que este projeto não usa, por decisão: gradiente decorativo, glassmorphism,
+ * sombra em tudo, ícone em cada item de lista, emoji, foto de banco de imagens.
+ *
+ * No Tailwind v4 as variáveis abaixo viram utilitários automaticamente:
+ * --color-ink-950 gera bg-ink-950, text-ink-950, border-ink-950.
+ */
+
+@theme {
+  /* ── Tipografia ─────────────────────────────────────────────────────────── */
+  --font-display: var(--font-archivo), "Archivo", system-ui, sans-serif;
+  --font-sans: var(--font-geist), "Geist", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+  --font-sign: var(--font-sign), cursive;
+
+  /* ── Neutros com leve viés teal, puxado da logo ─────────────────────────── */
+  --color-ink-950: #071012;
+  --color-ink-900: #0c191c;
+  --color-ink-800: #13262a;
+  --color-ink-700: #2a3c40;
+  --color-ink-600: #44575b;
+  --color-ink-500: #5d7074;
+  --color-ink-400: #8ca0a3;
+  --color-ink-300: #b3c2c4;
+  --color-ink-200: #d5dfde;
+  --color-ink-100: #e4ebea;
+  --color-ink-50: #f0f4f3;
+
+  --color-paper: #f5f7f6;
+
+  /* ── Acento único: o teal da logo ───────────────────────────────────────── */
+  --color-accent-800: #08525c;
+  --color-accent-700: #0a6370;
+  --color-accent-600: #0d7c8c;
+  --color-accent-500: #1aa6ba;
+  --color-accent-400: #4cc3d3;
+  --color-accent-50: #e3f2f4;
+
+  --color-star: #f5b301;
+
+  /* ── Escala tipográfica ─────────────────────────────────────────────────── */
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.65;
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.6;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.45;
+
+  --text-display-sm: 1.875rem;
+  --text-display-sm--line-height: 1.15;
+  --text-display-md: 2.5rem;
+  --text-display-md--line-height: 1.08;
+  --text-display-lg: 3.5rem;
+  --text-display-lg--line-height: 1.04;
+  --text-display-xl: 4.25rem;
+  --text-display-xl--line-height: 1.02;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Compensa o header ao pular para uma âncora. */
+    scroll-padding-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink-700);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    color: var(--color-ink-950);
+    font-weight: 700;
+    letter-spacing: -0.032em;
+    text-wrap: balance;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  /* Foco visível em tudo. Navegação por teclado não é opcional. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-600);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--color-accent-600);
+    color: #fff;
+  }
+
+  img,
+  video,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@layer components {
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    padding: 0.875rem 1.5rem;
+    background: var(--color-ink-950);
+    color: #fff;
+    font-weight: 600;
+  }
+  .skip-link:focus {
+    left: 0;
+  }
+
+  .container-page {
+    width: 100%;
+    /* Largura ampla: em telas grandes o conteudo respira sem virar uma
+       coluna estreita no meio do monitor. O limite de leitura continua
+       existindo por bloco (max-w-2xl no texto corrido), nao no container. */
+    max-width: 108rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container-page {
+      padding-inline: 3.5rem;
+    }
+  }
+
+  @media (min-width: 1680px) {
+    .container-page {
+      padding-inline: 5.5rem;
+    }
+  }
+
+  /**
+   * Rótulo de seção. Faz o papel que muita gente resolve com um ícone colorido,
+   * mas com texto — que o leitor de tela lê e o buscador entende.
+   */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-ink-200);
+    background: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    text-transform: lowercase;
+    color: var(--color-ink-950);
+  }
+  .eyebrow::before {
+    content: '/';
+    color: var(--color-accent-600);
+    font-weight: 600;
+  }
+  .eyebrow-dark {
+    border-color: rgb(255 255 255 / 0.1);
+    background: rgb(255 255 255 / 0.04);
+    color: var(--color-ink-100);
+  }
+  .eyebrow-dark::before {
+    color: var(--color-accent-500);
+  }
+
+  /* ── Botões em pílula. O preenchimento sobe por baixo no hover. ── */
+  .btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    height: 3.5rem;
+    padding: 0 1.625rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 400ms var(--ease-out-expo), box-shadow 300ms;
+  }
+  .btn-sm {
+    height: 2.75rem;
+    padding: 0 1.125rem;
+    font-size: 0.92rem;
+  }
+  .btn-primary {
+    background: var(--color-accent-500);
+    color: #04191c;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: #fff;
+    transform: translateY(101%);
+    transition: transform 500ms var(--ease-out-expo);
+  }
+  .btn-primary:hover::before {
+    transform: translateY(0);
+  }
+  .btn-on-light.btn-primary::before {
+    background: var(--color-ink-950);
+  }
+  .btn-on-light.btn-primary:hover {
+    color: #fff;
+  }
+  .btn-outline {
+    color: inherit;
+    box-shadow: inset 0 0 0 1px currentColor;
+  }
+  .btn-outline:hover {
+    background: rgb(127 127 127 / 0.1);
+  }
+  .btn .btn-arrow {
+    transition: transform 400ms var(--ease-out-expo);
+  }
+  .btn:hover .btn-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Seta circular que gira no hover do item pai. */
+  .go-circle {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-ink-200);
+    transition: background 400ms, border-color 400ms, transform 600ms var(--ease-out-expo);
+  }
+  .group:hover .go-circle {
+    background: var(--color-accent-500);
+    border-color: var(--color-accent-500);
+    transform: rotate(-45deg);
+  }
+
+  /* Texto longo vindo do CMS. */
+  .prose-gsr {
+    max-width: 46rem;
+    font-size: 1.125rem;
+    line-height: 1.75;
+    color: var(--color-ink-700);
+  }
+  .prose-gsr img {
+    border-radius: 0.75rem;
+  }
+  .prose-gsr blockquote {
+    border-left: 2px solid var(--color-accent-500);
+    padding-left: 1.25rem;
+    color: var(--color-ink-900);
+  }
+  .prose-gsr > * + * {
+    margin-top: 1.25rem;
+  }
+  .prose-gsr h2 {
+    font-size: var(--text-display-sm);
+    line-height: var(--text-display-sm--line-height);
+    margin-top: 3rem;
+  }
+  .prose-gsr h3 {
+    font-size: var(--text-xl);
+    margin-top: 2rem;
+  }
+  .prose-gsr ul,
+  .prose-gsr ol {
+    padding-left: 1.25rem;
+  }
+  .prose-gsr ul {
+    list-style: disc;
+  }
+  .prose-gsr ol {
+    list-style: decimal;
+  }
+  .prose-gsr li + li {
+    margin-top: 0.5rem;
+  }
+  .prose-gsr a {
+    color: var(--color-accent-600);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+  .prose-gsr strong {
+    color: var(--color-ink-900);
+    font-weight: 600;
+  }
+
+  /* Numeração de etapas e serviços, em vez de ícone decorativo. */
+  .step-number {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-accent-600);
+    letter-spacing: 0.02em;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Movimento
+ *
+ * Regra que vale para tudo aqui: a animação serve à leitura — conduz o olho e
+ * dá ritmo à página. Nada gira, pisca ou salta. Duração curta, curva de saída
+ * suave, e sempre um caminho de desligamento por prefers-reduced-motion.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+@layer components {
+  .reveal {
+    transition:
+      opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-hidden {
+    opacity: 0;
+  }
+  .reveal--bottom.is-hidden {
+    transform: translate3d(0, 22px, 0);
+  }
+  .reveal--left.is-hidden {
+    transform: translate3d(-18px, 0, 0);
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+
+  /* Cartão com reação ao ponteiro. Sutil: a borda escurece e o conteúdo sobe. */
+  .card-hover {
+    transition:
+      border-color 220ms ease,
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .card-hover:hover {
+    border-color: var(--color-ink-400);
+    transform: translateY(-3px);
+  }
+
+  /* A seta do link avança quando o item inteiro é apontado. */
+  .group:hover .arrow-slide {
+    transform: translateX(4px);
+  }
+  .arrow-slide {
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Sublinhado que cresce a partir da esquerda. */
+  .underline-grow {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .underline-grow:hover,
+  .group:hover .underline-grow {
+    background-size: 100% 1px;
+  }
+
+  /* Painel do menu: entra descendo, sem salto. */
+  .menu-panel {
+    transition:
+      opacity 200ms ease,
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 200ms;
+    transform: translate3d(0, -6px, 0);
+  }
+  .menu-open .menu-panel,
+  .group:hover .menu-panel,
+  .group:focus-within .menu-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  /* Faixa de tecnologias em movimento contínuo. */
+  .marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 42s linear infinite;
+  }
+  .marquee-mask:hover .marquee {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      /* Metade, porque a lista é duplicada para o laço ser contínuo. */
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  /* Linha do hero que se estende ao carregar. */
+  .rule-grow {
+    transform-origin: left;
+    animation: rule-grow 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes rule-grow {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* Esteira da vitrine: sem barra de rolagem visivel, mas rolavel. */
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Zoom lento na imagem do case ao apontar o cartão. */
+  .zoom-frame {
+    overflow: hidden;
+  }
+  .zoom-frame img,
+  .zoom-frame .zoom-target {
+    transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .group:hover .zoom-frame img,
+  .group:hover .zoom-frame .zoom-target {
+    transform: scale(1.04);
+  }
+}
+
+/**
+ * Desligamento único de todo o movimento.
+ *
+ * O bloco de prefers-reduced-motion lá em cima já zera durações, mas as
+ * animações de laço (marquee) precisam ser paradas explicitamente: duração
+ * quase zero em animação infinita vira tremor, que é pior que o movimento.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .marquee,
+  .rule-grow {
+    animation: none !important;
+  }
+  .reveal,
+  .card-hover,
+  .zoom-frame img,
+  .arrow-slide {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ── Lenis (rolagem suave) ── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* Máscara das linhas do SplitText. */
+.split-line {
+  overflow: clip;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
