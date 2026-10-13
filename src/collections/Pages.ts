@@ -24,6 +24,9 @@ export const Pages: CollectionConfig = {
     useAsTitle: 'title',
     group: 'Conteúdo',
     defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
+    // As páginas institucionais hoje vivem no código (app/(frontend)/*/page.tsx),
+    // não nesta collection. Escondida do painel até alguma página ler daqui.
+    hidden: true,
     livePreview: {
       url: ({ data }) => `/preview?collection=pages&slug=${data?.slug}`,
     },

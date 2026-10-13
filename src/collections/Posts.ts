@@ -24,7 +24,12 @@ export const Posts: CollectionConfig = {
       url: ({ data }) => `/preview?collection=posts&slug=${data?.slug}`,
     },
   },
-  versions: { drafts: true, maxPerDoc: 20 },
+  // schedulePublish adiciona "Agendar" ao lado de "Publicar". O agendamento vira
+  // um job na fila do Payload, executado pelo cron (ver jobs em payload.config.ts).
+  versions: {
+    drafts: { schedulePublish: { timeFormat: 'HH:mm', timeIntervals: 15 } },
+    maxPerDoc: 20,
+  },
   access: {
     read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }),
     create: ({ req }) => Boolean(req.user),
@@ -46,10 +51,21 @@ export const Posts: CollectionConfig = {
     ],
     beforeChange: [
       ({ data }) => {
-        // Tempo de leitura a partir do texto do Lexical.
-        const raw = JSON.stringify(data?.content ?? '')
+        // Tempo de leitura a partir do texto do Lexical. A publicação agendada
+        // envia só _status, então sem `content` o valor salvo é mantido.
+        if (data?.content === undefined) return data
+        const raw = JSON.stringify(data.content)
         const words = (raw.match(/"text":"[^"]*"/g) ?? []).join(' ').split(/\s+/).length
         data.readingTime = Math.max(1, Math.round(words / 200))
+        return data
+      },
+      ({ data, originalDoc }) => {
+        // A data entra na URL (/2026/10/13/slug/). Sem publishedAt, ela cairia no
+        // createdAt — num artigo agendado, o dia em que o rascunho foi criado.
+        const publishing = data?._status === 'published' && originalDoc?._status !== 'published'
+        if (publishing && !(data.publishedAt ?? originalDoc?.publishedAt)) {
+          data.publishedAt = new Date().toISOString()
+        }
         return data
       },
     ],
@@ -116,7 +132,8 @@ export const Posts: CollectionConfig = {
       label: 'Publicado em',
       admin: {
         position: 'sidebar',
-        description: 'Na migração, preserve a data original do WordPress.',
+        description:
+          'Define a data na URL do artigo. Deixe vazio para usar o momento da publicação (inclusive a agendada). Na migração, preserve a data original do WordPress.',
       },
     },
     {

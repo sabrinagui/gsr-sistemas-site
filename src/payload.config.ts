@@ -45,12 +45,15 @@ export default buildConfig({
       titleSuffix: ' · GSR Sistemas',
       icons: [{ rel: 'icon', type: 'image/png', url: '/brand/gsr-icone.png' }],
     },
-    // Logo da GSR no login e na navegação (src/components/admin/Branding.tsx).
+    // Marca da GSR no login, na navegação e na tela inicial (src/components/admin).
     components: {
       graphics: {
         Logo: '/components/admin/Branding#AdminLogo',
         Icon: '/components/admin/Branding#AdminIcon',
       },
+      beforeLogin: ['/components/admin/Branding#LoginIntro'],
+      afterNavLinks: ['/components/admin/Branding#NavSiteLink'],
+      beforeDashboard: ['/components/admin/Dashboard#Dashboard'],
     },
   },
 
@@ -72,6 +75,24 @@ export default buildConfig({
   globals: [SiteSettings, Header, Footer, SEOSettings],
 
   editor: lexicalEditor(),
+
+  /**
+   * Fila de jobs — hoje só a publicação agendada de artigos.
+   *
+   * Local e em Docker o processo fica de pé, e o autoRun confere a fila a cada
+   * minuto. Em serverless (Vercel) isso não existe: lá um cron precisa chamar
+   * GET /api/payload-jobs/run com "Authorization: Bearer $CRON_SECRET".
+   */
+  jobs: {
+    access: {
+      run: ({ req }) => {
+        if (req.user) return true
+        const secret = process.env.CRON_SECRET
+        return Boolean(secret) && req.headers.get('authorization') === `Bearer ${secret}`
+      },
+    },
+    autoRun: process.env.VERCEL ? undefined : [{ cron: '* * * * *', queue: 'default' }],
+  },
 
   // Neon. A string precisa ser a de pooling — ver payload-schema.md, 8.1.
   db: postgresAdapter({

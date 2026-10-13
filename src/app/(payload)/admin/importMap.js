@@ -25,6 +25,9 @@ import { MetaTitleField as MetaTitleField_3051a21f7763e403800d1bb0592e3f4b } fro
 import { MetaDescriptionField as MetaDescriptionField_3051a21f7763e403800d1bb0592e3f4b } from '@/components/admin/CharCountField'
 import { AdminIcon as AdminIcon_bedc1e06f20d365eaa4738f78ed07569 } from '../../../components/admin/Branding'
 import { AdminLogo as AdminLogo_bedc1e06f20d365eaa4738f78ed07569 } from '../../../components/admin/Branding'
+import { NavSiteLink as NavSiteLink_bedc1e06f20d365eaa4738f78ed07569 } from '../../../components/admin/Branding'
+import { Dashboard as Dashboard_16b88e9b8c48e393fa86591406efd08f } from '../../../components/admin/Dashboard'
+import { LoginIntro as LoginIntro_bedc1e06f20d365eaa4738f78ed07569 } from '../../../components/admin/Branding'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -56,5 +59,8 @@ export const importMap = {
   "@/components/admin/CharCountField#MetaDescriptionField": MetaDescriptionField_3051a21f7763e403800d1bb0592e3f4b,
   "/components/admin/Branding#AdminIcon": AdminIcon_bedc1e06f20d365eaa4738f78ed07569,
   "/components/admin/Branding#AdminLogo": AdminLogo_bedc1e06f20d365eaa4738f78ed07569,
+  "/components/admin/Branding#NavSiteLink": NavSiteLink_bedc1e06f20d365eaa4738f78ed07569,
+  "/components/admin/Dashboard#Dashboard": Dashboard_16b88e9b8c48e393fa86591406efd08f,
+  "/components/admin/Branding#LoginIntro": LoginIntro_bedc1e06f20d365eaa4738f78ed07569,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

@@ -16,6 +16,19 @@ export const AdminLogo = () => (
   </span>
 )
 
+/** Texto acima do formulário de login. */
+export const LoginIntro = () => (
+  <p className="gsr-login-intro">Entre para editar o conteúdo do site e acompanhar os leads.</p>
+)
+
+/** Rodapé da navegação lateral: atalho para o site publicado. */
+export const NavSiteLink = () => (
+  <a className="gsr-nav-site" href="/" target="_blank" rel="noopener noreferrer">
+    <span>Ver o site</span>
+    <span aria-hidden>↗</span>
+  </a>
+)
+
 /** Ícone pequeno no topo da navegação lateral. */
 export const AdminIcon = () => (
   <span className="gsr-brand gsr-brand--icon">

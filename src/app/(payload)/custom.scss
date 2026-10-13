@@ -1,4 +1,128 @@
-/* Ajustes visuais do admin: marca da GSR e o teal da logo nos botões. */
+/**
+ * Tema do painel com a identidade do site (ver app/(frontend)/globals.css).
+ *
+ * Mesmo sistema visual: neutros com leve viés teal, um único acento (o teal da
+ * logo), Archivo nos títulos, Geist no texto e Geist Mono nos rótulos. Fios
+ * finos em vez de sombra.
+ *
+ * O CSS do Payload fica em @layer payload-default; tudo aqui fora de camada
+ * vence sem precisar de !important.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap');
+
+/* ── Paleta ───────────────────────────────────────────────────────────────── */
+
+:root {
+  /* A escala de cinza do Payload trocada pelos neutros "ink" do site. */
+  --color-base-0: #ffffff;
+  --color-base-50: #f5f7f6;
+  --color-base-100: #ecf1f0;
+  --color-base-150: #e4ebea;
+  --color-base-200: #d5dfde;
+  --color-base-250: #c4d1d1;
+  --color-base-300: #b3c2c4;
+  --color-base-350: #a0b1b3;
+  --color-base-400: #8ca0a3;
+  --color-base-450: #75898c;
+  --color-base-500: #5d7074;
+  --color-base-550: #506468;
+  --color-base-600: #44575b;
+  --color-base-650: #37494d;
+  --color-base-700: #2a3c40;
+  --color-base-750: #1f3135;
+  --color-base-800: #13262a;
+  --color-base-850: #102023;
+  --color-base-900: #0c191c;
+  --color-base-950: #071012;
+  --color-base-1000: #030809;
+
+  /* "Sucesso" (publicado, salvo) no teal da marca, não no azul padrão. */
+  --color-success-50: #eef8f9;
+  --color-success-100: #e3f2f4;
+  --color-success-150: #c9e7eb;
+  --color-success-200: #a9dae0;
+  --color-success-250: #86ccd6;
+  --color-success-300: #66c0cd;
+  --color-success-350: #4cc3d3;
+  --color-success-400: #2fb2c4;
+  --color-success-450: #1aa6ba;
+  --color-success-500: #1293a6;
+  --color-success-550: #0d7c8c;
+  --color-success-600: #0b6f7d;
+  --color-success-650: #0a6370;
+  --color-success-700: #095a66;
+  --color-success-750: #08525c;
+  --color-success-800: #074750;
+  --color-success-850: #063c44;
+  --color-success-900: #052f35;
+  --color-success-950: #04252a;
+
+  --gsr-accent: #0d7c8c;
+  --gsr-accent-hover: #0a6370;
+  --gsr-accent-soft: #e3f2f4;
+  --gsr-star: #f5b301;
+
+  --font-body: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, Menlo, Consolas, monospace;
+  --gsr-font-display: 'Archivo', 'Geist', system-ui, sans-serif;
+
+  --style-radius-s: 6px;
+  --style-radius-m: 10px;
+  --style-radius-l: 16px;
+}
+
+html[data-theme='dark'] {
+  --gsr-accent: #1aa6ba;
+  --gsr-accent-hover: #4cc3d3;
+  --gsr-accent-soft: rgba(26, 166, 186, 0.14);
+  --theme-bg: #071012;
+  --theme-elevation-0: #071012;
+}
+
+::selection {
+  background: var(--gsr-accent);
+  color: #fff;
+}
+
+a {
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 3px;
+}
+
+/* ── Tipografia ───────────────────────────────────────────────────────────── */
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--gsr-font-display);
+  letter-spacing: -0.02em;
+}
+
+.doc-header__title,
+.collection-list__header h1,
+.list-header h1 {
+  font-family: var(--gsr-font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.field-label,
+.collections__label,
+th {
+  font-family: var(--font-mono);
+  font-size: 11px !important;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field-label {
+  color: var(--theme-elevation-600);
+}
+
+/* ── Marca ────────────────────────────────────────────────────────────────── */
 
 .gsr-brand {
   display: inline-flex;
@@ -17,12 +141,13 @@
 }
 
 .gsr-brand--icon img {
-  width: 64px;
+  width: 88px;
 }
 
 .gsr-brand__tagline {
-  font-size: 13px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--theme-elevation-500);
 }
@@ -42,14 +167,516 @@ html[data-theme='dark'] {
   }
 }
 
-/* Botão principal no teal da marca. */
+/* ── Login ────────────────────────────────────────────────────────────────── */
+
+.template-minimal {
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--theme-elevation-300) 55%, transparent) 1px, transparent 0)
+      0 0 / 22px 22px,
+    var(--theme-elevation-50);
+}
+
+.template-minimal__wrap {
+  background: var(--theme-elevation-0);
+  border: 1px solid var(--theme-elevation-150);
+  border-top: 3px solid var(--gsr-accent);
+  border-radius: var(--style-radius-l);
+  padding: 48px 40px 40px !important;
+  max-width: 440px !important;
+}
+
+.login__brand {
+  margin-bottom: 8px !important;
+}
+
+.gsr-login-intro {
+  margin: 0 0 24px;
+  text-align: center;
+  color: var(--theme-elevation-600);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── Navegação lateral ────────────────────────────────────────────────────── */
+
+.nav {
+  background: var(--theme-elevation-50);
+  border-right: 1px solid var(--theme-elevation-150);
+}
+
+.nav__header {
+  border-bottom: 1px solid var(--theme-elevation-150);
+}
+
+/* Sidebar mais larga que o padrão (275px); no celular o Payload usa 100vw. */
+@media (min-width: 769px) {
+  :root {
+    --nav-width: 300px;
+  }
+}
+
+.nav-group__toggle {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--theme-elevation-600);
+}
+
+.nav__link {
+  position: relative;
+  font-size: 17px;
+  line-height: 1.4;
+  padding-block: 8px !important;
+  padding-inline: 12px !important;
+  margin-inline-start: -12px;
+  color: var(--theme-elevation-800);
+  border-radius: var(--style-radius-s);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: var(--theme-elevation-100);
+  }
+}
+
+.nav__link-indicator {
+  background: var(--gsr-accent) !important;
+  width: 3px !important;
+  border-radius: 2px;
+}
+
+.nav__link.active,
+.nav__link[aria-current='page'],
+.nav__link:has(.nav__link-indicator) {
+  color: var(--gsr-accent);
+  font-weight: 600;
+  background: var(--gsr-accent-soft);
+}
+
+.gsr-nav-site {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24px 0 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-m);
+  color: var(--theme-elevation-800);
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    border-color: var(--gsr-accent);
+    color: var(--gsr-accent);
+  }
+}
+
+/* ── Botões e controles ───────────────────────────────────────────────────── */
+
 .btn--style-primary {
-  --bg-color: #0d7c8c;
-  --hover-bg: #0a6370;
-  background-color: #0d7c8c;
+  --bg-color: var(--gsr-accent);
+  --hover-bg: var(--gsr-accent-hover);
+  --color: #fff;
+  --hover-color: #fff;
+  background-color: var(--gsr-accent);
+  color: #fff;
 
   &:hover,
   &:focus-visible {
-    background-color: #0a6370;
+    background-color: var(--gsr-accent-hover);
   }
+}
+
+.btn--style-secondary {
+  --hover-color: var(--gsr-accent);
+  --hover-box-shadow: inset 0 0 0 1px var(--gsr-accent);
+}
+
+.btn {
+  border-radius: var(--style-radius-m) !important;
+  font-weight: 500;
+}
+
+input:focus,
+textarea:focus,
+.react-select .rs__control--is-focused,
+.field-type input:focus {
+  border-color: var(--gsr-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gsr-accent) 18%, transparent) !important;
+}
+
+.checkbox-input__input input:checked + .checkbox-input__icon,
+.checkbox-input--checked .checkbox-input__icon {
+  background-color: var(--gsr-accent) !important;
+  border-color: var(--gsr-accent) !important;
+}
+
+.tabs-field__tab-button--active,
+.tabs-field__tab-button.tabs-field__tab-button--active {
+  color: var(--gsr-accent);
+  border-bottom-color: var(--gsr-accent) !important;
+}
+
+/* ── Cards das collections (tela inicial) ─────────────────────────────────── */
+
+.collections__label {
+  color: var(--theme-elevation-500);
+  margin-bottom: 12px;
+}
+
+.card {
+  border: 1px solid var(--theme-elevation-150);
+  box-shadow: none !important;
+  border-radius: var(--style-radius-m);
+  background: var(--theme-elevation-0);
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    border-color: var(--gsr-accent);
+  }
+}
+
+.card__title {
+  font-family: var(--gsr-font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ── Listas ───────────────────────────────────────────────────────────────── */
+
+.table {
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  thead th {
+    color: var(--theme-elevation-500);
+    border-bottom: 1px solid var(--theme-elevation-150);
+  }
+
+  tbody tr {
+    transition: background-color 0.12s ease;
+
+    &:hover {
+      background: var(--gsr-accent-soft);
+    }
+  }
+
+  tbody td {
+    border-bottom: 1px solid var(--theme-elevation-100);
+  }
+
+  a {
+    font-weight: 600;
+  }
+}
+
+.pill {
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* ── Tela inicial: saudação, números, atalhos e leads ─────────────────────── */
+
+.gsr-dash {
+  margin-bottom: 8px;
+}
+
+.gsr-dash__hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 8px 0 32px;
+  border-bottom: 1px solid var(--theme-elevation-150);
+}
+
+.gsr-dash__eyebrow {
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gsr-accent);
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    margin-right: 10px;
+    vertical-align: middle;
+    background: currentColor;
+  }
+}
+
+.gsr-dash__title {
+  margin: 0;
+  font-family: var(--gsr-font-display);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--theme-elevation-1000);
+}
+
+.gsr-dash__lead {
+  margin: 14px 0 0;
+  font-size: 16px;
+  color: var(--theme-elevation-600);
+}
+
+.gsr-dash__site {
+  flex-shrink: 0;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: var(--theme-elevation-1000);
+  color: var(--theme-elevation-0);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--gsr-accent);
+    color: #fff;
+  }
+}
+
+.gsr-dash__stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  border-bottom: 1px solid var(--theme-elevation-150);
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.gsr-dash__stat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 20px 22px;
+  border-right: 1px solid var(--theme-elevation-150);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+
+  &:last-child {
+    border-right: 0;
+  }
+
+  &:hover {
+    background: var(--theme-elevation-50);
+
+    .gsr-dash__number {
+      color: var(--gsr-accent);
+    }
+  }
+
+  &.is-highlight {
+    background: var(--gsr-accent-soft);
+
+    .gsr-dash__number {
+      color: var(--gsr-accent);
+    }
+  }
+}
+
+.gsr-dash__index {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--theme-elevation-400);
+}
+
+.gsr-dash__number {
+  font-family: var(--gsr-font-display);
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--theme-elevation-1000);
+  transition: color 0.15s ease;
+}
+
+.gsr-dash__label {
+  font-size: 13px;
+  color: var(--theme-elevation-600);
+}
+
+.gsr-dash__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 24px;
+  margin-top: 32px;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gsr-dash__panel {
+  padding: 24px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-l);
+  background: var(--theme-elevation-0);
+}
+
+.gsr-dash__panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+
+  a {
+    font-size: 13px;
+    color: var(--gsr-accent);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.gsr-dash__heading {
+  margin: 0 0 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--theme-elevation-500);
+}
+
+.gsr-dash__heading--section {
+  margin: 48px 0 0;
+}
+
+.gsr-dash__actions,
+.gsr-dash__leads {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li + li {
+    border-top: 1px solid var(--theme-elevation-100);
+  }
+
+  a {
+    display: grid;
+    align-items: center;
+    gap: 2px 12px;
+    padding: 12px 4px;
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--style-radius-s);
+    transition:
+      background-color 0.12s ease,
+      padding 0.15s ease;
+
+    &:hover {
+      background: var(--theme-elevation-50);
+      padding-left: 10px;
+    }
+  }
+}
+
+.gsr-dash__actions a {
+  grid-template-columns: 1fr auto auto;
+  font-weight: 500;
+
+  small {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--theme-elevation-450);
+  }
+
+  &:hover .gsr-dash__arrow {
+    color: var(--gsr-accent);
+    transform: translateX(3px);
+  }
+}
+
+.gsr-dash__arrow {
+  color: var(--theme-elevation-400);
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.gsr-dash__leads a {
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'name badge'
+    'meta badge';
+}
+
+.gsr-dash__lead-name {
+  grid-area: name;
+  font-weight: 600;
+
+  small {
+    font-weight: 400;
+    color: var(--theme-elevation-500);
+  }
+}
+
+.gsr-dash__lead-meta {
+  grid-area: meta;
+  font-size: 13px;
+  color: var(--theme-elevation-500);
+}
+
+.gsr-dash__badge {
+  grid-area: badge;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  background: var(--theme-elevation-100);
+  color: var(--theme-elevation-700);
+}
+
+.gsr-dash__badge--novo {
+  background: var(--gsr-accent);
+  color: #fff;
+}
+
+.gsr-dash__badge--qualificado {
+  background: var(--gsr-accent-soft);
+  color: var(--gsr-accent);
+}
+
+.gsr-dash__badge--convertido {
+  background: color-mix(in srgb, var(--gsr-star) 22%, transparent);
+  color: color-mix(in srgb, var(--gsr-star) 55%, var(--theme-elevation-1000));
+}
+
+.gsr-dash__badge--descartado {
+  opacity: 0.6;
+}
+
+.gsr-dash__empty {
+  margin: 0;
+  color: var(--theme-elevation-500);
+  font-size: 14px;
 }
