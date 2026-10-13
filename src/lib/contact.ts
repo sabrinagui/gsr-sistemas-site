@@ -25,3 +25,10 @@ export const formatBrazilianPhone = (whatsapp: string): string => {
 }
 
 export const telLink = (phone: string): string => `tel:+${phone.replace(/\D/g, '')}`
+
+/** Perfil da GSR no Google. Atualize quando o número de avaliações mudar. */
+export const GOOGLE_REVIEWS = {
+  rating: '5,0',
+  count: 5,
+  url: 'https://www.google.com/search?q=GSR+Sistemas',
+}

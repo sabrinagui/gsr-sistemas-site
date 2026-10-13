@@ -36,14 +36,16 @@ export const Redirects: CollectionConfig = {
       unique: true,
       index: true,
       label: 'De',
-      admin: { description: 'Caminho com barra inicial, sem domínio e sem barra final. Ex.: /pagina-antiga' },
+      admin: { description: 'Caminho com barra inicial e barra final, sem domínio. Ex.: /pagina-antiga/' },
       hooks: {
         beforeValidate: [
           ({ value }) => {
             if (typeof value !== 'string') return value
             let path = value.trim()
             if (!path.startsWith('/')) path = `/${path}`
-            if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1)
+            // Mesma forma canônica do site (normalizePath): barra final, exceto
+            // em URL com query (/?p=121) ou arquivo (/feed.xml).
+            if (!path.includes('?') && !/\.[a-z0-9]+$/i.test(path) && !path.endsWith('/')) path = `${path}/`
             return path.toLowerCase()
           },
         ],

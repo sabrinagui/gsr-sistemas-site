@@ -3,16 +3,19 @@ import Link from 'next/link'
 
 import { JsonLd } from '@/components/seo/JsonLd'
 import {
-  ArrowLink,
-  Breadcrumbs,
-  Button,
+  ArrowIcon,
   CtaBand,
   FaqList,
   NumberedList,
   Section,
   SectionHeader,
+  WhatsAppIcon,
 } from '@/components/ui'
+import { LaptopFrame } from '@/components/ui/LaptopFrame'
+import { PageHero } from '@/components/ui/PageHero'
 import { whatsappLink } from '@/lib/contact'
+import { getFeaturedCases } from '@/lib/payload/queries'
+import { postPath } from '@/lib/posts'
 import {
   buildGraph,
   generateBreadcrumbSchema,
@@ -24,11 +27,11 @@ import {
 /**
  * Template único das páginas de serviço.
  *
- * Estrutura fixa: o editor preenche conteúdo, não monta layout. É o que mantém
- * as páginas de serviço coerentes entre si e impede que uma delas vire uma
- * colagem de blocos soltos.
+ * Estrutura fixa: o editor preenche conteúdo, não monta layout. Seção sem dado
+ * não renderiza; nunca há placeholder visível no site.
  *
- * Seção sem dado não renderiza — nunca há placeholder visível no site.
+ * Projetos: usa os cases ligados ao serviço no CMS. Sem eles, mostra os cases
+ * publicados do mesmo tipo (site, loja virtual, landing page, sistema).
  */
 
 type ServicePageProps = {
@@ -40,6 +43,15 @@ type ServicePageProps = {
   areaServed?: string[]
 }
 
+/** Tipo de case que combina com cada serviço, para o fallback de projetos. */
+const CASE_TYPES: Record<string, string[]> = {
+  'criacao-de-sites': ['site'],
+  'lojas-virtuais': ['loja-virtual'],
+  'landing-pages': ['landing-page'],
+  'desenvolvimento-de-sistemas': ['sistema', 'site'],
+  'automacao-e-integracoes': ['automacao', 'sistema'],
+}
+
 /** Extrai o texto puro do Lexical, para o FAQPage refletir o que está na tela. */
 const lexicalToText = (node: any): string => {
   if (!node) return ''
@@ -48,43 +60,33 @@ const lexicalToText = (node: any): string => {
   return children.map(lexicalToText).join(' ').replace(/\s+/g, ' ').trim()
 }
 
-export const ServicePage = ({
-  service,
-  site,
-  breadcrumbs,
-  path,
-  areaServed,
-}: ServicePageProps) => {
+const caseImage = (item: any) => (typeof item?.featuredImage === 'object' ? item.featuredImage : null)
+
+export const ServicePage = async ({ service, site, breadcrumbs, path, areaServed }: ServicePageProps) => {
   const hero = service.hero ?? {}
   const faqs = (service.faqs ?? []).filter((f: any) => typeof f === 'object')
-  const cases = (service.relatedCases ?? []).filter(
-    (c: any) => typeof c === 'object' && c.clientApproved,
-  )
   const posts = (service.relatedPosts ?? []).filter((p: any) => typeof p === 'object')
   const related = (service.relatedServices ?? []).filter((s: any) => typeof s === 'object')
   const technologies = (service.technologies ?? []).filter((t: any) => typeof t === 'object')
 
+  let cases = (service.relatedCases ?? []).filter((c: any) => typeof c === 'object' && c.clientApproved)
+  if (cases.length === 0) {
+    const types = CASE_TYPES[service.slug] ?? []
+    const all = await getFeaturedCases(12)
+    cases = all.filter((c: any) => types.includes(c.projectType))
+    if (cases.length === 0) cases = all
+  }
+  cases = cases.slice(0, 3)
+  const heroCase = cases.find((c: any) => caseImage(c)?.url)
+
   const whatsapp = site?.whatsapp ? whatsappLink(site.whatsapp, site.whatsappMessage) : null
 
   const graph = buildGraph([
-    generateWebPageSchema({
-      path,
-      name: service.title,
-      description: service.description,
-      dateModified: service.updatedAt,
-    }),
-    generateServiceSchema({
-      name: service.title,
-      description: service.description,
-      path,
-      areaServed,
-    }),
+    generateWebPageSchema({ path, name: service.title, description: service.description, dateModified: service.updatedAt }),
+    generateServiceSchema({ name: service.title, description: service.description, path, areaServed }),
     generateBreadcrumbSchema(breadcrumbs),
-    // Opcional por página, e só quando o FAQ está de fato visível acima.
     service.emitFaqSchema && faqs.length > 0
-      ? generateFaqSchema(
-          faqs.map((f: any) => ({ question: f.question, answer: lexicalToText(f.answer) })),
-        )
+      ? generateFaqSchema(faqs.map((f: any) => ({ question: f.question, answer: lexicalToText(f.answer) })))
       : null,
   ])
 
@@ -92,55 +94,83 @@ export const ServicePage = ({
     <>
       <JsonLd data={graph} />
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="container-page pb-16 pt-8 md:pb-24 md:pt-10">
-        <Breadcrumbs items={breadcrumbs} />
-        <div className="mt-8 max-w-4xl">
-          <h1 className="text-display-md md:text-display-lg">{hero.headline ?? service.title}</h1>
-          <p className="mt-6 max-w-2xl text-lg text-ink-500 md:text-xl">
-            {hero.subheadline ?? service.description}
-          </p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Button href={hero.primaryCtaHref ?? '/orcamento'}>
-              {hero.primaryCtaLabel ?? 'Solicitar orçamento'}
-            </Button>
-            {hero.secondaryCtaLabel && hero.secondaryCtaHref ? (
-              <Button href={hero.secondaryCtaHref} variant="secondary">
-                {hero.secondaryCtaLabel}
-              </Button>
-            ) : null}
-          </div>
+      <PageHero
+        breadcrumbs={breadcrumbs}
+        eyebrow={service.shortTitle ?? 'serviço'}
+        title={hero.headline ?? service.title}
+        description={hero.subheadline ?? service.description}
+        aside={
+          heroCase ? (
+            <div className="lg:pl-6">
+              <LaptopFrame
+                image={caseImage(heroCase)?.url}
+                alt={caseImage(heroCase)?.alt ?? heroCase.title}
+                priority
+              />
+              <p className="mt-5 text-center font-mono text-[0.78rem] text-ink-500">Projeto: {heroCase.title}</p>
+            </div>
+          ) : null
+        }
+      >
+        <div className="flex flex-wrap gap-3">
+          {whatsapp ? (
+            <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+              <WhatsAppIcon />
+              Quero meu orçamento
+            </a>
+          ) : null}
+          <Link href={hero.primaryCtaHref ?? '/orcamento/'} className="btn btn-outline text-white">
+            {hero.primaryCtaLabel ?? 'Pedir proposta detalhada'}
+            <ArrowIcon className="btn-arrow h-[18px] w-[18px]" />
+          </Link>
         </div>
-      </section>
+      </PageHero>
 
       {/* ── Conteúdo principal ───────────────────────────────────────────── */}
       {service.content ? (
         <Section>
-          <div className="prose-gsr text-ink-600">
-            <RichText data={service.content} />
+          <div className="grid gap-12 lg:grid-cols-[0.6fr_1.4fr] lg:gap-24">
+            <div>
+              <p className="eyebrow" data-reveal>
+                visão geral
+              </p>
+            </div>
+            <div className="prose-gsr" data-reveal>
+              <RichText data={service.content} />
+            </div>
           </div>
         </Section>
       ) : null}
 
       {/* ── O que está incluso ───────────────────────────────────────────── */}
       {service.features?.length > 0 ? (
-        <Section>
-          <SectionHeader eyebrow="Escopo" title="O que está incluso" as="h2" />
-          <NumberedList items={service.features} />
+        <Section tone="white" className={service.content ? '' : ''}>
+          <SectionHeader eyebrow="escopo" title="O que está incluso" />
+          <ul className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-reveal-stagger>
+            {service.features.map((f: any) => (
+              <li key={f.title} className="rounded-3xl border border-ink-200 bg-paper p-8">
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-accent-50 text-accent-700">
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+                    <path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <h3 className="mt-6 text-[1.3rem] tracking-tight">{f.title}</h3>
+                {f.description ? <p className="mt-2 text-ink-500">{f.description}</p> : null}
+              </li>
+            ))}
+          </ul>
         </Section>
       ) : null}
 
       {/* ── Benefícios ───────────────────────────────────────────────────── */}
       {service.benefits?.length > 0 ? (
-        <Section tone="muted" bordered={false}>
-          <SectionHeader eyebrow="Por quê" title="O que isso muda para a sua empresa" as="h2" />
-          <ul className="mt-12 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-            {service.benefits.map((benefit: any) => (
-              <li key={benefit.title} className="border-t border-ink-200 pt-6">
-                <h3 className="text-lg">{benefit.title}</h3>
-                {benefit.description ? (
-                  <p className="mt-2 text-ink-500">{benefit.description}</p>
-                ) : null}
+        <Section tone="ink">
+          <SectionHeader dark eyebrow="por que vale" title="O que isso muda para a sua empresa" />
+          <ul className="mt-16 grid gap-x-12 gap-y-12 md:grid-cols-2" data-reveal-stagger>
+            {service.benefits.map((b: any) => (
+              <li key={b.title} className="border-t border-white/10 pt-8">
+                <h3 className="text-[1.6rem] tracking-tight text-white md:text-[2rem]">{b.title}</h3>
+                {b.description ? <p className="mt-3 max-w-[50ch] text-lg text-ink-400">{b.description}</p> : null}
               </li>
             ))}
           </ul>
@@ -150,60 +180,73 @@ export const ServicePage = ({
       {/* ── Processo ─────────────────────────────────────────────────────── */}
       {service.process?.length > 0 ? (
         <Section>
-          <SectionHeader eyebrow="Como funciona" title="O processo" as="h2" />
+          <SectionHeader eyebrow="como funciona" title="Do primeiro contato ao projeto no ar" />
           <NumberedList items={service.process} />
+        </Section>
+      ) : null}
+
+      {/* ── Projetos ─────────────────────────────────────────────────────── */}
+      {cases.length > 0 ? (
+        <Section tone="ink">
+          <SectionHeader
+            dark
+            eyebrow="projetos"
+            title="Trabalhos entregues"
+            aside={
+              <Link href="/portfolio/" className="group mt-6 inline-flex items-center gap-2 font-semibold text-accent-500 no-underline">
+                <span className="underline-grow">Ver todos os projetos</span>
+                <ArrowIcon className="arrow-slide h-4 w-4" />
+              </Link>
+            }
+          />
+          <ul className="mt-16 grid gap-12 md:grid-cols-2 lg:grid-cols-3" data-reveal-stagger>
+            {cases.map((item: any) => (
+              <li key={item.id}>
+                <Link href={`/portfolio/${item.slug}/`} className="group block no-underline">
+                  <LaptopFrame image={caseImage(item)?.url} alt={caseImage(item)?.alt ?? ''} kind={item.projectType} />
+                  <h3 className="mt-6 text-xl text-white">
+                    <span className="underline-grow">{item.title}</span>
+                  </h3>
+                  {item.summary ? <p className="mt-2 line-clamp-2 text-ink-400">{item.summary}</p> : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </Section>
       ) : null}
 
       {/* ── Tecnologias ──────────────────────────────────────────────────── */}
       {technologies.length > 0 ? (
         <Section>
-          <SectionHeader eyebrow="Tecnologia" title="Com o que construímos" as="h2" />
-          <ul className="mt-10 flex flex-wrap gap-3">
-            {technologies.map((tech: any) => (
-              <li
-                key={tech.id}
-                className="rounded-md border border-ink-200 px-4 py-2 text-[0.925rem] font-medium text-ink-700"
-              >
-                {tech.name}
-              </li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
-
-      {/* ── Projetos ─────────────────────────────────────────────────────── */}
-      {cases.length > 0 ? (
-        <Section>
-          <SectionHeader eyebrow="Projetos" title="Trabalhos relacionados" as="h2" />
-          <ul className="mt-12 grid gap-10 md:grid-cols-3">
-            {cases.map((item: any) => (
-              <li key={item.id}>
-                <h3 className="text-xl">
-                  <Link
-                    href={`/portfolio/${item.slug}`}
-                    className="no-underline hover:text-accent-600 hover:underline"
-                  >
-                    {item.title}
-                  </Link>
-                </h3>
-                {item.summary ? <p className="mt-3 text-ink-500">{item.summary}</p> : null}
-              </li>
-            ))}
-          </ul>
+          <div className="grid gap-10 lg:grid-cols-[0.6fr_1.4fr] lg:gap-24">
+            <p className="eyebrow" data-reveal>
+              tecnologia
+            </p>
+            <ul className="flex flex-wrap gap-2" data-reveal-stagger>
+              {technologies.map((tech: any) => (
+                <li key={tech.id} className="rounded-full border border-ink-200 bg-white px-4 py-2 font-mono text-[0.85rem] text-ink-700">
+                  {tech.name}
+                </li>
+              ))}
+            </ul>
+          </div>
         </Section>
       ) : null}
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       {faqs.length > 0 ? (
-        <Section>
-          <SectionHeader eyebrow="Dúvidas" title="Perguntas frequentes" as="h2" />
-          <div className="max-w-3xl">
+        <Section className={technologies.length > 0 ? '!pt-0' : ''}>
+          <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
+            <div>
+              <p className="eyebrow" data-reveal>
+                dúvidas
+              </p>
+              <h2 data-split className="mt-6 text-[2.1rem] leading-[1.08] md:text-[2.75rem]">
+                Perguntas frequentes
+              </h2>
+            </div>
             <FaqList
-              items={faqs.map((faq: any) => ({
-                question: faq.question,
-                answer: <RichText data={faq.answer} />,
-              }))}
+              items={faqs.map((faq: any) => ({ question: faq.question, answer: <RichText data={faq.answer} /> }))}
             />
           </div>
         </Section>
@@ -211,35 +254,37 @@ export const ServicePage = ({
 
       {/* ── Conteúdo e serviços relacionados ─────────────────────────────── */}
       {posts.length > 0 || related.length > 0 ? (
-        <Section>
-          <div className="grid gap-14 lg:grid-cols-2">
+        <Section tone="white">
+          <div className="grid gap-14 lg:grid-cols-2 lg:gap-24">
             {posts.length > 0 ? (
               <div>
-                <h2 className="text-display-sm">Conteúdo relacionado</h2>
-                <ul className="mt-8 flex flex-col gap-5">
+                <p className="eyebrow">leia também</p>
+                <ul className="mt-8 border-t border-ink-200">
                   {posts.map((post: any) => (
-                    <li key={post.id} className="border-t border-ink-100 pt-5">
-                      <Link
-                        href={`/blog/${post.slug}`}
-                        className="font-display font-semibold text-ink-950 no-underline hover:text-accent-600 hover:underline"
-                      >
-                        {post.title}
+                    <li key={post.id}>
+                      <Link href={postPath(post)} className="group flex items-center justify-between gap-6 border-b border-ink-200 py-6 no-underline">
+                        <span className="text-[1.15rem] font-semibold tracking-tight text-ink-950 transition-colors group-hover:text-accent-600">
+                          {post.title}
+                        </span>
+                        <ArrowIcon className="arrow-slide h-5 w-5 shrink-0 text-accent-600" />
                       </Link>
                     </li>
                   ))}
                 </ul>
               </div>
             ) : null}
-
             {related.length > 0 ? (
               <div>
-                <h2 className="text-display-sm">Outros serviços</h2>
-                <ul className="mt-8 flex flex-col gap-5">
+                <p className="eyebrow">outros serviços</p>
+                <ul className="mt-8 border-t border-ink-200">
                   {related.map((item: any) => (
-                    <li key={item.id} className="border-t border-ink-100 pt-5">
-                      <ArrowLink href={`/${item.slug}`}>
-                        {item.shortTitle ?? item.title}
-                      </ArrowLink>
+                    <li key={item.id}>
+                      <Link href={`/${item.slug}/`} className="group flex items-center justify-between gap-6 border-b border-ink-200 py-6 no-underline">
+                        <span className="text-[1.15rem] font-semibold tracking-tight text-ink-950 transition-colors group-hover:text-accent-600">
+                          {item.shortTitle ?? item.title}
+                        </span>
+                        <ArrowIcon className="arrow-slide h-5 w-5 shrink-0 text-accent-600" />
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -250,13 +295,13 @@ export const ServicePage = ({
       ) : null}
 
       <CtaBand
-        title={service.cta?.title ?? 'Vamos conversar sobre o seu projeto?'}
+        title={service.cta?.title ?? 'Pronto para tirar o projeto do papel?'}
         description={
           service.cta?.description ??
-          'Conte o que sua empresa precisa. Respondemos com uma proposta de escopo — sem compromisso.'
+          'Conte o que sua empresa precisa e receba uma proposta com escopo, prazo e valor fechados.'
         }
-        buttonLabel={service.cta?.buttonLabel ?? 'Solicitar orçamento'}
-        buttonHref={service.cta?.buttonHref ?? '/orcamento'}
+        buttonLabel={service.cta?.buttonLabel ?? 'Pedir proposta detalhada'}
+        buttonHref={service.cta?.buttonHref ?? '/orcamento/'}
         whatsappHref={whatsapp}
       />
     </>

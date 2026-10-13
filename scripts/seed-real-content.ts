@@ -161,6 +161,11 @@ const run = async () => {
   })
 
   await payload.updateGlobal({
+    slug: 'header',
+    data: { ctaLabel: 'Pedir orçamento', ctaHref: '/orcamento/' } as never,
+    context: ctx,
+  })
+  await payload.updateGlobal({
     slug: 'footer',
     data: {
       description: 'Criação de sites, lojas virtuais e sistemas sob medida para empresas de todo o Brasil.',
@@ -175,8 +180,8 @@ const run = async () => {
     await payload.update({
       collection: 'locations',
       id: doc.id,
+      // Sem draft: true: assim o documento publicado vira rascunho de fato.
       data: { _status: 'draft' } as never,
-      draft: true,
       context: ctx,
     })
   }

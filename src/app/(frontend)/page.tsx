@@ -16,7 +16,7 @@ import {
   WhatsAppIcon,
 } from '@/components/ui'
 import { ProjectShowcase } from '@/components/ui/ProjectShowcase'
-import { formatBrazilianPhone, whatsappLink } from '@/lib/contact'
+import { formatBrazilianPhone, GOOGLE_REVIEWS, whatsappLink } from '@/lib/contact'
 import {
   getFeaturedCases,
   getFeaturedTestimonials,
@@ -45,12 +45,7 @@ import { buildGraph, generateFaqSchema, generateWebPageSchema } from '@/lib/seo/
 
 export const revalidate = 3600
 
-/** Perfil da GSR no Google. Atualize quando o número de avaliações mudar. */
-const GOOGLE = {
-  rating: '5,0',
-  count: 5,
-  url: 'https://www.google.com/search?q=GSR+Sistemas+S%C3%A3o+Lu%C3%ADs',
-}
+const GOOGLE = GOOGLE_REVIEWS
 
 const FAQ = [
   {
@@ -161,10 +156,8 @@ export default async function HomePage() {
             </h1>
 
             <p data-reveal="0.1" className="mt-7 max-w-[52ch] text-lg text-ink-400 md:text-[1.15rem]">
-              Seu site não pode ser só bonito. Ele precisa trazer cliente. Desenhamos e desenvolvemos sites, lojas
-              virtuais e sistemas sob medida para{' '}
-              <strong className="font-medium text-white">aparecer no Google, passar confiança e transformar visita em
-              conversa no WhatsApp</strong>.
+              Sites, lojas virtuais e sistemas sob medida, feitos para aparecer no Google e transformar visita em
+              cliente.
             </p>
 
             <div data-reveal="0.2" className="mt-10 flex flex-wrap gap-3">
@@ -179,20 +172,18 @@ export default async function HomePage() {
               </Button>
             </div>
 
-            <dl data-reveal="0.3" className="mt-14 flex flex-wrap gap-x-12 gap-y-6 border-t border-white/10 pt-7 text-[0.9rem]">
-              {[
-                ['Sob medida', 'nada de tema pronto'],
-                ['Todo o Brasil', 'atendimento 100% online'],
-                ['7 dias', 'suporte também no fim de semana'],
-              ].map(([title, text]) => (
-                <div key={title}>
-                  <dt className="font-display text-[1.7rem] font-bold leading-tight tracking-tight text-white">
-                    {title}
-                  </dt>
-                  <dd className="text-ink-400">{text}</dd>
-                </div>
-              ))}
-            </dl>
+            <ul data-reveal="0.3" className="mt-12 flex flex-wrap gap-x-7 gap-y-3 text-[0.92rem] text-ink-400">
+              {['Sob medida', 'Todo o Brasil', 'Suporte 7 dias por semana'].map(
+                (item) => (
+                  <li key={item} className="inline-flex items-center gap-2">
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 text-accent-500" fill="none" aria-hidden="true">
+                      <path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {item}
+                  </li>
+                ),
+              )}
+            </ul>
           </div>
 
           <div className="min-w-0">
