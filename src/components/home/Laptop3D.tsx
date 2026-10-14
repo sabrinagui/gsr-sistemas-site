@@ -71,15 +71,14 @@ type LaptopProps = {
   open: boolean
   onToggle: () => void
   reducedMotion: boolean
-  startOpen: boolean
   onReady?: () => void
 }
 
-const LaptopModel = ({ screens, index, open, onToggle, reducedMotion, startOpen, onReady }: LaptopProps) => {
+const LaptopModel = ({ screens, index, open, onToggle, reducedMotion, onReady }: LaptopProps) => {
   const group = useRef<THREE.Group>(null)
   const lid = useRef<THREE.Group>(null)
   const screenMat = useRef<THREE.MeshBasicMaterial>(null)
-  const angle = useRef(reducedMotion || startOpen ? OPEN : CLOSED)
+  const angle = useRef(reducedMotion ? OPEN : CLOSED)
   const drag = useRef<{ y: number; start: number } | null>(null)
   const target = useRef(open ? OPEN : CLOSED)
 
@@ -256,15 +255,12 @@ export const Laptop3D = ({
   open,
   onToggle,
   onReady,
-  startOpen = false,
 }: {
   screens: string[]
   index: number
   open: boolean
   onToggle: () => void
   onReady?: () => void
-  /** Começa com a tampa aberta, sem a animação de abertura. */
-  startOpen?: boolean
 }) => {
   const wrap = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(true)
@@ -303,7 +299,6 @@ export const Laptop3D = ({
             open={open}
             onToggle={onToggle}
             reducedMotion={reducedMotion}
-            startOpen={startOpen}
             onReady={onReady}
           />
         </Suspense>
