@@ -351,7 +351,7 @@ export default async function HomePage() {
       <Section tone="ink" id="sobrenos">
         <div className="grid items-center gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-28">
           <div className="relative mx-auto aspect-square w-full max-w-[460px]" data-reveal>
-            <span className="absolute -inset-[7%] rounded-full border border-accent-500/15" />
+            <span className="absolute -inset-[4%] rounded-full sm:-inset-[7%] border border-accent-500/15" />
             <span className="absolute inset-0 rounded-full border border-accent-500/40" />
             <div className="absolute inset-[7%] grid place-items-end overflow-hidden rounded-full bg-ink-800">
               <Image

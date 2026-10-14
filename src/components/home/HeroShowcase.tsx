@@ -1,34 +1,43 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { preload } from 'react-dom'
+import { useState } from 'react'
+
+import { LaptopFrame } from '@/components/ui/LaptopFrame'
 
 /**
  * Vitrine do hero: o notebook 3D com os projetos reais na tela.
  *
- * O 3D (three.js) só carrega no navegador e depois da página pronta. Até lá,
- * aparece a captura do projeto, então o hero nunca fica vazio, nem para quem
- * está sem JavaScript.
+ * O 3D (three.js) só roda no navegador. Até ele desenhar o primeiro quadro,
+ * aparece o notebook em CSS com a mesma captura, então o hero nunca fica
+ * vazio, nem para quem está sem JavaScript. A troca é um fade, com o 3D já
+ * aberto, para não haver salto.
  */
 
-const Laptop3D = dynamic(() => import('./Laptop3D').then((m) => m.Laptop3D), {
-  ssr: false,
-  loading: () => null,
-})
+const loadLaptop3D = () => import('./Laptop3D').then((m) => m.Laptop3D)
+
+// Começa a baixar o three.js assim que este módulo roda, sem esperar a
+// hidratação da página terminar.
+if (typeof window !== 'undefined') void loadLaptop3D()
+
+const Laptop3D = dynamic(loadLaptop3D, { ssr: false, loading: () => null })
+
+const LOGO = '/brand/gsr-logo-branca.png'
 
 export type ShowcaseProject = { name: string; image: string }
 
 export const HeroShowcase = ({ projects }: { projects: ShowcaseProject[] }) => {
   const [index, setIndex] = useState(0)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
   const [ready, setReady] = useState(false)
 
-  // Chega fechado e abre sozinho, logo depois do título.
-  useEffect(() => {
-    const t = setTimeout(() => setOpen(true), 900)
-    return () => clearTimeout(t)
-  }, [])
+  // As texturas entram no <head> como preload e baixam junto com a página,
+  // em paralelo ao three.js. crossOrigin igual ao do TextureLoader, senão o
+  // navegador baixa de novo.
+  for (const src of [...projects.map((p) => p.image), LOGO]) {
+    preload(src, { as: 'image', crossOrigin: 'anonymous' })
+  }
 
   const current = projects[index]
   if (!current) return null
@@ -41,17 +50,21 @@ export const HeroShowcase = ({ projects }: { projects: ShowcaseProject[] }) => {
   return (
     <div className="relative">
       <div className="relative w-full" style={{ aspectRatio: "1.2 / 1" }}>
-        {/* Captura estática até o 3D assumir. */}
-        {!ready ? (
-          <div className="absolute inset-x-[8%] top-[14%] aspect-[802/500] overflow-hidden rounded-xl border border-white/10">
-            <Image src={current.image} alt={`Site ${current.name}`} fill priority sizes="45vw" className="object-cover object-top" />
-          </div>
-        ) : null}
-        <div className="absolute inset-0">
+        {/* Notebook em CSS até o 3D desenhar o primeiro quadro. */}
+        <div
+          aria-hidden={ready || undefined}
+          className={`absolute inset-x-[12%] top-[18%] transition-opacity duration-500 ${
+            ready ? 'pointer-events-none opacity-0' : 'opacity-100'
+          }`}
+        >
+          <LaptopFrame image={current.image} alt={`Site ${current.name}`} priority />
+        </div>
+        <div className={`absolute inset-0 transition-opacity duration-500 ${ready ? 'opacity-100' : 'opacity-0'}`}>
           <Laptop3D
             screens={projects.map((p) => p.image)}
             index={index}
             open={open}
+            startOpen
             onToggle={() => setOpen((v) => !v)}
             onReady={() => setReady(true)}
           />

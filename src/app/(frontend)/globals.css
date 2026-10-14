@@ -98,6 +98,9 @@
     line-height: var(--text-base--line-height);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Rede de segurança: nada decorativo pode fazer a página balançar de lado
+       no celular. clip (e não hidden) para não quebrar o position: sticky. */
+    overflow-x: clip;
   }
 
   h1,

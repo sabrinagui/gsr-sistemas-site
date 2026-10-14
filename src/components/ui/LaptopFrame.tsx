@@ -160,12 +160,12 @@ export const LaptopFrame = ({
     {/* Base e dobradiça. O trapézio dá o volume do laptop sem imagem. */}
     <div className="relative">
       <div
-        className="mx-auto h-3 w-[108%] border-x border-ink-800 bg-ink-800"
+        className="-mx-[4%] h-3 w-[108%] border-x border-ink-800 bg-ink-800"
         style={{ clipPath: 'polygon(3% 0, 97% 0, 100% 100%, 0 100%)' }}
       />
       <div
         aria-hidden="true"
-        className="mx-auto h-1 w-[108%] rounded-b-lg bg-ink-900"
+        className="-mx-[4%] h-1 w-[108%] rounded-b-lg bg-ink-900"
         style={{ clipPath: 'polygon(0 0, 100% 0, 96% 100%, 4% 100%)' }}
       />
       {/* Entalhe do apoio para abrir a tampa. */}

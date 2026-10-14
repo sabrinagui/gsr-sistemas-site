@@ -71,13 +71,15 @@ type LaptopProps = {
   open: boolean
   onToggle: () => void
   reducedMotion: boolean
+  startOpen: boolean
+  onReady?: () => void
 }
 
-const LaptopModel = ({ screens, index, open, onToggle, reducedMotion }: LaptopProps) => {
+const LaptopModel = ({ screens, index, open, onToggle, reducedMotion, startOpen, onReady }: LaptopProps) => {
   const group = useRef<THREE.Group>(null)
   const lid = useRef<THREE.Group>(null)
   const screenMat = useRef<THREE.MeshBasicMaterial>(null)
-  const angle = useRef(reducedMotion ? OPEN : CLOSED)
+  const angle = useRef(reducedMotion || startOpen ? OPEN : CLOSED)
   const drag = useRef<{ y: number; start: number } | null>(null)
   const target = useRef(open ? OPEN : CLOSED)
 
@@ -89,6 +91,16 @@ const LaptopModel = ({ screens, index, open, onToggle, reducedMotion }: LaptopPr
   })
   const logoTex = textures[textures.length - 1]
   const keyboard = useKeyboardTexture()
+
+  // Só avisa que está pronto depois que as texturas chegaram e o primeiro
+  // quadro foi desenhado: antes disso o canvas ainda está vazio.
+  useEffect(() => {
+    let id = requestAnimationFrame(() => {
+      id = requestAnimationFrame(() => onReady?.())
+    })
+    return () => cancelAnimationFrame(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Troca de projeto: a tampa fecha até a metade, a tela apaga, a captura
   // troca e a tampa reabre. O índice exibido segue o pedido com atraso.
@@ -244,12 +256,15 @@ export const Laptop3D = ({
   open,
   onToggle,
   onReady,
+  startOpen = false,
 }: {
   screens: string[]
   index: number
   open: boolean
   onToggle: () => void
   onReady?: () => void
+  /** Começa com a tampa aberta, sem a animação de abertura. */
+  startOpen?: boolean
 }) => {
   const wrap = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(true)
@@ -275,7 +290,6 @@ export const Laptop3D = ({
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         onCreated={({ camera }) => {
           camera.lookAt(0, 0.45, 0)
-          onReady?.()
         }}
       >
         <ambientLight intensity={0.35} />
@@ -283,7 +297,15 @@ export const Laptop3D = ({
         {/* Contraluz teal: recorta a silhueta do notebook no fundo escuro. */}
         <directionalLight position={[-2, 3, -5]} intensity={1.1} color="#1aa6ba" />
         <Suspense fallback={null}>
-          <LaptopModel screens={screens} index={index} open={open} onToggle={onToggle} reducedMotion={reducedMotion} />
+          <LaptopModel
+            screens={screens}
+            index={index}
+            open={open}
+            onToggle={onToggle}
+            reducedMotion={reducedMotion}
+            startOpen={startOpen}
+            onReady={onReady}
+          />
         </Suspense>
         <ContactShadows position={[0, -0.56, 0]} opacity={0.55} scale={9} blur={2.6} far={2} />
         {/* Luz de estúdio gerada localmente: nenhum HDR baixado de CDN. */}

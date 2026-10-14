@@ -63,7 +63,7 @@ export default async function SobrePage() {
         description="A GSR Sistemas é o estúdio de Sabrina Mesquita. Design e desenvolvimento sob medida para empresas de todo o Brasil, com a mesma régua que ela usa para clientes nos Estados Unidos e na Europa."
         aside={
           <div className="relative mx-auto aspect-square w-full max-w-[400px]">
-            <span className="absolute -inset-[7%] rounded-full border border-accent-500/15" />
+            <span className="absolute -inset-[4%] rounded-full sm:-inset-[7%] border border-accent-500/15" />
             <span className="absolute inset-0 rounded-full border border-accent-500/40" />
             <div className="absolute inset-[7%] grid place-items-end overflow-hidden rounded-full bg-ink-800">
               <Image
